@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import getWeb3 from '../../utils/getWeb3';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
 import Geocode from "react-geocode";
 import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
@@ -8,6 +10,9 @@ import {actualLatitudeToContractLatitude, actualLongitudeToContractLongitude} fr
 import CreateUserButton from '../../components/create_user_button';
 import GoogleMap from '../../components/google_map';
 import EternalCoreContract from '../../../node_modules/sweeteternal/build/contracts/EternalCore.json';
+
+//Styling
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default class CreateEvent extends Component {
 	constructor(props) {
@@ -20,6 +25,8 @@ export default class CreateEvent extends Component {
 			formDescriptionIsPristine: true,
 			formTitle: '',
 			formDescription: '',
+			formStartTime: moment(),
+			formEndTime: moment(),
 			formLocation: '',
 			formLatitude: 0.0,
 			formLongitude: 0.0,
@@ -27,6 +34,7 @@ export default class CreateEvent extends Component {
 			mapCenterLatitude: 0.0,
 			mapCenterLongitude: 0.0,
 			hasUser: null,
+			translator: props.translator,
 			web3: null
 		}
 	}
@@ -130,6 +138,14 @@ export default class CreateEvent extends Component {
 		});
 	}
 
+	onStartTimeChange(date) {
+		this.setState({ formStartTime: date });
+	}
+
+	onEndTimeChange(date) {
+		this.setState({ formEndTime: date });
+	}
+
 	onLocationChange(event) {
 		this.setState({ formLocation: event.target.value });
 	}
@@ -177,8 +193,8 @@ export default class CreateEvent extends Component {
 			0,
 			actualLatitudeToContractLatitude(this.state.formLatitude),
 			actualLongitudeToContractLongitude(this.state.formLongitude),
-			0,
-			0,
+			this.state.formStartTime.unix(),
+			this.state.formEndTime.unix(),
 			[1],
 	        {from: this.state.account}
 		).then(result => {
@@ -188,7 +204,11 @@ export default class CreateEvent extends Component {
 		            alert(`Event successfully created!`);
 		            this.setState({
 		            	formTitle: '',
+		            	formTitleIsPristine: true,
 		            	formDescription: '',
+		            	formDescriptionIsPristine: true,
+		            	formStartTime: moment(),
+		            	formEndTime: moment(),
 		            	formLocation: '',
 		            	formSubmitted: false
 		            });
@@ -237,6 +257,19 @@ export default class CreateEvent extends Component {
 							/>
 							<FormControl.Feedback />
 						</FormGroup>
+					</li>
+
+					<li className="list-group-item">
+						<strong>Start Time:</strong>
+						<DatePicker
+					        selected={this.state.formStartTime}
+					        onChange={this.onStartTimeChange.bind(this)} />
+					    <br />
+					    <strong>End Time:</strong>
+					    <DatePicker
+					        selected={this.state.formEndTime}
+					        onChange={this.onEndTimeChange.bind(this)}
+					        minDate={this.state.formStartTime} />
 					</li>
 
 					<li className="list-group-item">

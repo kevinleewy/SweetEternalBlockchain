@@ -6,9 +6,10 @@ contract EternalUsers is EternalPriviledges {
 
     /*** EVENTS ***/
 
-    event UserCreated(address account, uint256 userId, string name, uint256 _dob);
-    event UserNameChanged(uint256 userId, string newName);
-    event UserDefaultApprovalToggled(uint256 userId, bool newSetting);
+    event UserCreated(address indexed account, uint256 userId, string name, uint256 _dob);
+    event UserNameChanged(uint256 indexed userId, string newName);
+    event UserDefaultApprovalToggled(uint256 indexed userId, bool newSetting);
+    event SecondaryAddressSet(uint256 indexed userId, address indexed newAddress);
 
 
     /*** DATA TYPES ***/
@@ -95,6 +96,7 @@ contract EternalUsers is EternalPriviledges {
     // Sets the secondary addresses of user.
     // Sender must be the primary address
     // @param _address Address to set as secondary address of user
+    // @event SecondaryAddressSet
     function setSecondaryAddress(address _address) public onlyUser {
         
         uint256 userId = addressToUser[msg.sender];
@@ -108,13 +110,19 @@ contract EternalUsers is EternalPriviledges {
         //Validate that _address has not been assigned to another user
         require(addressToUser[_address] == 0);
 
+        //Unset previous secondary address
+        addressToUser[user.secondaryAddress] = 0; //point to null user
+
         //Set address
         addressToUser[_address] = userId;
         user.secondaryAddress = _address;
+
+        emit SecondaryAddressSet(userId, _address);
     }
 
     // Unsets the secondary addresses of user.
     // Sender must be the primary address
+    // @event SecondaryAddressSet
     function unsetSecondaryAddress() public onlyUser {
         
         uint256 userId = addressToUser[msg.sender];
@@ -131,6 +139,8 @@ contract EternalUsers is EternalPriviledges {
         //Unset address
         addressToUser[user.secondaryAddress] = 0; //point to null user
         user.secondaryAddress = address(0);
+
+        emit SecondaryAddressSet(userId, address(0));
     }
 
     // Swaps the addresses of user. Intended to allow setting

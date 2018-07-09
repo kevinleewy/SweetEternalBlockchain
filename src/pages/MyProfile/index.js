@@ -16,6 +16,7 @@ export default class MyProfile extends Component {
 			account: null,
 			contract: null,
 			hasUser: true,
+			translator: props.translator,
 			user: null,
 			walletBalance: null,
 			web3: null
@@ -135,7 +136,7 @@ export default class MyProfile extends Component {
 
 		return (
 			<div>
-				<h1>My Profile</h1>
+				<h1>{this.state.translator.translate('HEADER_myProfile')}</h1>
 				<hr />
 				{this.renderUser()}
 				<hr />

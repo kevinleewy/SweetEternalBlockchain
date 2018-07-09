@@ -16,6 +16,7 @@ export default class Profile extends Component {
 			error: null,
 			userId: this.props.match.params.id,
 			user: null,
+			translator: props.translator,
 			web3: null
 		}
 	}

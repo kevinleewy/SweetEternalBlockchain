@@ -14,10 +14,18 @@ export default class Home extends Component {
 		  account: null,
 		  contract: null,
 		  hasUser: false,
+		  language: props.language,
 		  totalEvents: 'Loading...',
 		  totalUsers: 'Loading...',
+		  translator: props.translator,
 		  web3: null
 		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		this.setState({
+			language: nextProps.language
+		});
 	}
 
 	componentWillMount() {
@@ -95,13 +103,14 @@ export default class Home extends Component {
 	}
 
 	render() {
+
+		const translate = this.state.translator.translate;
+
 		return (
 			<div>
-				<h1>Welcome</h1>
+				<h1>{translate('HEADER_welcome')}</h1>
 				<Jumbotron>
-					<p>People come and go</p>
-					<p>But memories last forever</p>
-					<p>Preserve memories for all eternity</p>
+					{translate('HOME_message').map( (s,i) => <p key={i}>{s}</p> ) }
 				</Jumbotron>
 				<h2>Sweet Eternal</h2>
 				<h4>Memories on the Blockchain</h4>

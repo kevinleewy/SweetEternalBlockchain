@@ -24,6 +24,9 @@ import Profile from './pages/Profile';
 //User-defined components
 import Menubar from './components/menubar';
 
+//Utilities
+import translator from './utils/translator';
+
 export default class App extends Component {
 	constructor(props) {
 		super(props)
@@ -31,6 +34,7 @@ export default class App extends Component {
 		this.state = {
 		  account: null,
 		  contract: null,
+		  language: translator.getLocale(),
 		  mobile: false,
 		  web3: null
 		}
@@ -38,6 +42,11 @@ export default class App extends Component {
 
 	componentWillMount() {
 
+	}
+
+	onLanguageSelect(eventKey){
+		this.setState({ language: eventKey });
+		translator.setLocale(eventKey);
 	}
 
 	toggleMobile(){
@@ -50,18 +59,22 @@ export default class App extends Component {
 				<Router basename={'/'}>
 					<div className="App">
 						
-		                <Menubar mobile={this.state.mobile} />
+		                <Menubar
+		                	currentLanguage={this.state.language}
+		                	onLanguageSelect={this.onLanguageSelect.bind(this)}
+		                	mobile={this.state.mobile}
+		                	translator={ translator } />
 
 		                <Switch>
-		                	<Route path="/users/create" component={CreateUser} />
-		                	<Route path="/users/me/edit" component={EditUser} />
-		                	<Route path="/users/me" component={MyProfile} />
-		                	<Route path="/users/:id([0-9]+)" component={Profile} />
-		                	<Route path="/events/create" component={CreateEvent} />
-		                	<Route path="/events/me" component={MyEvents} />
-		                	<Route path="/events/:id([0-9]+)" component={Event} />
-		                	<Route path="/help" component={Help} />
-		                	<Route path="/" component={Home} />
+		                	<Route path="/users/create" render={(props) => <CreateUser {...props} translator={ translator } />} />
+		                	<Route path="/users/me/edit" render={(props) => <EditUser {...props} translator={ translator } />} />
+		                	<Route path="/users/me" render={(props) => <MyProfile {...props} translator={ translator } />} />
+		                	<Route path="/users/:id([0-9]+)" render={(props) => <Profile {...props} translator={ translator } />} />
+		                	<Route path="/events/create" render={(props) => <CreateEvent {...props} translator={ translator } />} />
+		                	<Route path="/events/me" render={(props) => <MyEvents {...props} translator={ translator } />} />
+		                	<Route path="/events/:id([0-9]+)" render={(props) => <Event {...props} translator={ translator } />} />
+		                	<Route path="/help" render={(props) => <Help {...props} translator={ translator } />} />
+		                	<Route path="/" render={(props) => <Home {...props} translator={ translator } />} />
 		                </Switch>
 
 						<hr />

@@ -16,6 +16,7 @@ export default class MyEvents extends Component {
 			contract: null,
 			events: null,
 			hasUser: true,
+			translator: props.translator,
 			user: null,
 			web3: null
 		}
@@ -126,7 +127,7 @@ export default class MyEvents extends Component {
 
 		return (
 			<div>
-				<h1>My Events</h1>
+				<h1>{this.state.translator.translate('HEADER_myEvents')}</h1>
 				<hr />
 				<Link to="/events/create" className="btn btn-primary">Create Event</Link>
 				<hr />

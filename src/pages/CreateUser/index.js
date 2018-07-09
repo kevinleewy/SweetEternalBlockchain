@@ -26,6 +26,7 @@ export default class CreateUser extends Component {
 			mapCenterLongitude: 0.0,
 			hasUser: null,
 			formSubmitted: false,
+			translator: props.translator,
 			web3: null
 		}
 	}
@@ -134,16 +135,16 @@ export default class CreateUser extends Component {
 	        {from: this.state.account}
 		).then(result => {
 			this.setState({formSubmitted: true});
-			this.state.contract.UserCreated().watch( (err, response) => {
-	            if(response.args.account === this.state.account){
-		            alert(`User successfully created!`);
-		            this.setState({
-		            	name: '',
-		            	dob: moment(),
-		            	birthLocation: '',
-		            	formSubmitted: false
-		            });
-		        }
+			this.state.contract.UserCreated({
+				account: this.state.account
+			}).watch( (err, response) => {
+	            alert(`User ID ${response.args.userId} successfully created for address ${response.args.account}! `);
+	            this.setState({
+	            	name: '',
+	            	dob: moment(),
+	            	birthLocation: '',
+	            	formSubmitted: false
+	            });
 	        });
 		});
 	}

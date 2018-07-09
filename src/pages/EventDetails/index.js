@@ -27,6 +27,7 @@ export default class EventDetails extends Component {
 			location: 'Unknown',
 			lat: 0.0,
 			lng: 0.0,
+			translator: props.translator,
 			web3: null
 		}
 	}
@@ -123,18 +124,18 @@ export default class EventDetails extends Component {
 
 			 			//Load event participants
 			 			for(var i = 0; i < event[4]; i++){
-			 				(participantId => {
-			 					instance.participants(this.state.id, participantId).then(participant =>{
-			 						instance.users(participant[0]).then(user => {
-			 							this.setState({
-				 							participants: this.state.participants.concat([{
-				 								id: participant[0].toNumber(),
-				 								name: user[0],
-				 								approval: participant[1]
-				 							}])
-				 						});
-			 						});
-			 					});
+			 				(async participantId => {
+
+			 					var participant = await instance.participants(this.state.id, participantId);
+			 					var user = await instance.users(participant[0]);
+	 							this.setState({
+		 							participants: this.state.participants.concat([{
+		 								id: participant[0].toNumber(),
+		 								name: user[0],
+		 								approval: participant[1]
+		 							}])
+		 						});
+			 
 			 				})(i);
 			 			}
 
@@ -182,7 +183,7 @@ export default class EventDetails extends Component {
 		const _participants = this.state.participants.map( (p, index) => {
 			return (
 				<div key={index}>
-					<Link to={`/users/${p.id}`}>{p.name}</Link>
+					<span><Link to={`/users/${p.id}`}>{p.name}</Link>{!p.approval && " (Rejected)"}</span>
 				</div>
 			);
 		});

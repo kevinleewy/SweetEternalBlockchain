@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import getWeb3 from '../../utils/getWeb3';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 import CreateUserButton from '../../components/create_user_button';
 
@@ -14,11 +15,14 @@ export default class EditUser extends Component {
 			account: null,
 			contract: null,
 			name: '',
+			nameIsPristine: true,
+			address2: '',
+			address2IsPristine: true,
 			currentDefaultEventApproval: null,
 			hasUser: null,
 			userId: null,
-			saveButtonDisabled: false,
-			toggleButtonDisabled: false,
+			buttonDisabled: false,
+			translator: props.translator,
 			web3: null
 		}
 	}
@@ -105,8 +109,46 @@ export default class EditUser extends Component {
 		});
 	}
 
+	validateName(){
+		if(this.state.nameIsPristine){
+			return null;
+		}
+		if(this.state.name === ''){
+			return 'error';
+		}
+		return 'success'; 
+	}
+
+	validateSecondaryAddress(){
+		if(this.state.address2IsPristine){
+			return null;
+		}
+		const re = /^(0x)*[0-9A-Fa-f]{40}$/g;
+
+		if(re.test(this.state.address2)) {
+		    return 'success';
+		} else {
+		    return 'error';
+		}
+		/*
+		if(parseInt(this.state.address2, 16).toString(16) !== this.state.address2){
+			return 'error';
+		}
+		return 'success'; */
+	}
+
 	onNameChange(event) {
-		this.setState({ name: event.target.value });
+		this.setState({ 
+			name: event.target.value,
+			nameIsPristine: false
+		});
+	}
+
+	onAddressChange(event) {
+		this.setState({ 
+			address2: event.target.value,
+			address2IsPristine: false
+		});
 	}
 
 	onNameChangeSave(event){
@@ -114,15 +156,58 @@ export default class EditUser extends Component {
 			this.state.name,
 	        {from: this.state.account}
 		).then(result => {
-			this.setState({saveButtonDisabled: true});
-			this.state.contract.UserNameChanged().watch( (err, response) => {
-	            if(response.args.userId.toNumber()){
-		            alert(`Name successfully changed to ${response.args.newName}`);
-		            this.setState({
-		            	name: '',
-		            	saveButtonDisabled: false
-		            });
-		        }
+			this.setState({buttonDisabled: true});
+			this.state.contract.UserNameChanged({
+				userId: this.state.userId
+			}).watch( (err, response) => {
+	            alert(`Name successfully changed to ${response.args.newName}`);
+	            this.setState({
+	            	name: '',
+	            	nameIsPristine: true,
+	            	buttonDisabled: false
+	            });
+	        });
+		});
+	}
+
+	onAddressAssign(event){
+		const prefix = /^0x/g;
+		const newAddress = prefix.test(this.state.address2) ? this.state.address2 : `0x${this.state.address2}`;
+
+		this.state.contract.setSecondaryAddress.sendTransaction(
+			newAddress,
+	        {from: this.state.account}
+		).then(result => {
+			this.setState({buttonDisabled: true});
+			this.state.contract.SecondaryAddressSet({
+				userId: this.state.userId,
+				newAddress: newAddress
+			}).watch( (err, response) => {
+	            alert(`Secondary address assigned to ${response.args.newAddress}`);
+	            this.setState({
+	            	name: '',
+	            	nameIsPristine: true,
+	            	buttonDisabled: false
+	            });
+	        });
+		});
+	}
+
+	onAddressUnassign(event){
+		this.state.contract.unsetSecondaryAddress.sendTransaction(
+	        {from: this.state.account}
+		).then(result => {
+			this.setState({buttonDisabled: true});
+			this.state.contract.SecondaryAddressSet({
+				userId: this.state.userId,
+				newAddress: '0x0000000000000000000000000000000000000000'
+			}).watch( (err, response) => {
+	            alert(`Secondary address successfully unset`);
+	            this.setState({
+	            	name: '',
+	            	nameIsPristine: true,
+	            	buttonDisabled: false
+	            });
 	        });
 		});
 	}
@@ -131,20 +216,20 @@ export default class EditUser extends Component {
 		this.state.contract.toggleDefaultApproval.sendTransaction(
 	        {from: this.state.account}
 		).then(result => {
-			this.setState({toggleButtonDisabled: true});
-			this.state.contract.UserDefaultApprovalToggled().watch( (err, response) => {
-	            if(response.args.userId.toNumber()){
-		            alert("Setting toggled!");
-		            this.state.contract.getMyUser.call({
-						from: this.state.account
-					}).then( user => {
+			this.setState({buttonDisabled: true});
+			this.state.contract.UserDefaultApprovalToggled({
+				userId: this.state.userId
+			}).watch( (err, response) => {
+	            alert("Setting toggled!");
+	            this.state.contract.getMyUser.call({
+					from: this.state.account
+				}).then( user => {
 
-			            this.setState({ currentDefaultEventApproval:
-			            	user[5] ? 'Approve' : 'Reject'
-			            });
-			        });
-		            this.setState({toggleButtonDisabled: false});
-		        }
+		            this.setState({ currentDefaultEventApproval:
+		            	user[5] ? 'Approve' : 'Reject'
+		            });
+		        });
+	            this.setState({buttonDisabled: false});
 	        });
 		});
 	}
@@ -160,19 +245,57 @@ export default class EditUser extends Component {
 			<div>
 				<ul className="col-md-4 list-group">
 					<li className="list-group-item">
-						Name Change:
-						&nbsp;
-						<input
-							placeholder="Input a name"
-							value={this.state.name}
-							onChange={this.onNameChange.bind(this)}/>
-						&nbsp;
-						<button
-							className="btn btn-primary"
-							onClick={this.onNameChangeSave.bind(this)}
-							disabled={this.state.saveButtonDisabled}>
-							Save
-						</button>
+						<FormGroup
+							controlId="name"
+							validationState={this.validateName()}
+						>
+							<ControlLabel>New Name</ControlLabel>
+							<FormControl
+								type="text"
+								value={this.state.name}
+								placeholder="Enter new name"
+								onChange={this.onNameChange.bind(this)}
+								onBlur={() => this.setState({nameIsPristine: false})}
+							/>
+							<FormControl.Feedback />
+
+							<button
+								className="btn btn-primary"
+								onClick={this.onNameChangeSave.bind(this)}
+								disabled={this.state.buttonDisabled}>
+								Save
+							</button>
+						</FormGroup>
+
+						<FormGroup
+							controlId="assignSecondaryAddress"
+							validationState={this.validateSecondaryAddress()}
+						>
+							<ControlLabel>Assign Secondary Wallet Address</ControlLabel>
+							<FormControl
+								type="text"
+								value={this.state.address2}
+								placeholder="Enter a wallet address"
+								onChange={this.onAddressChange.bind(this)}
+								onBlur={() => this.setState({address2IsPristine: false})}
+							/>
+							<FormControl.Feedback />
+
+							<button
+								className="btn btn-primary"
+								onClick={this.onAddressAssign.bind(this)}
+								disabled={this.state.buttonDisabled}>
+								Assign
+							</button>
+							&nbsp;
+							<button
+								className="btn btn-primary"
+								onClick={this.onAddressUnassign.bind(this)}
+								disabled={this.state.buttonDisabled}>
+								Unassign Current Secondary Address
+							</button>
+						</FormGroup>
+						
 					</li>
 					<li className="list-group-item">
 						Current Default Event Approval: {this.state.currentDefaultEventApproval}
@@ -180,7 +303,7 @@ export default class EditUser extends Component {
 					    <button
 					    	className="btn btn-primary"
 					    	onClick={this.toggleDefaultEventApproval.bind(this)}
-					    	disabled={this.state.toggleButtonDisabled}>
+					    	disabled={this.state.buttonDisabled}>
 					    	Toggle
 					    </button>
 				    </li>
