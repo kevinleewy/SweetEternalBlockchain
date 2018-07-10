@@ -1,12 +1,11 @@
-# CS359B Project (ADD NAME HERE)
+# Sweet Eternal Blockchain Project
 
-(short description here)
+A project to record events permanently on the blockchain
 
 ## Technologies used
 
-(Add only the specific technologies you need to use until Midterm)
-
-* (e.g. solidity, react, node, mysql)
+* Solidity (Smart Contracts)
+* React (Front-end)
 
 ## Installation intructions
 
@@ -71,6 +70,7 @@ npm link sweeteternal
 ```
 npm run start
 ```
+if a tab didn't automatically open in your web browser, manually open one and key in `localhost:3000` and hit `<ENTER>`.
 
 9. Build webpack
 ```
