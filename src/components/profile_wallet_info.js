@@ -34,7 +34,7 @@ export default ({ account, balance }) => {
 	return (
 		<div>
 			<h3>Wallet Info</h3>
-			<ul className="col-md-4 list-group">
+			<ul className="list-group">
 				<li className="list-group-item">Account: { account }</li>
 				<li className="list-group-item">Balance: { balance } EP</li>
 				<li className="list-group-item">Tier: { getTier(balance) }</li>

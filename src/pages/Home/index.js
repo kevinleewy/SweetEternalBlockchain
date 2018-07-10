@@ -117,7 +117,7 @@ export default class Home extends Component {
 				<p>Powered by Ethereum</p>
 				<hr />
 				<h2>Statistics</h2>
-				<ul className="col-md-4 list-group">
+				<ul className="list-group">
 					<li className="list-group-item">Total Number of Users: {this.state.totalUsers}</li>
 					<li className="list-group-item">Total Number of Events: {this.state.totalEvents}</li>
 				</ul>

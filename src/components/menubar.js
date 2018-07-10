@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { SplitButton, MenuItem } from 'react-bootstrap';
 import {AppBar, MuiThemeProvider, Tabs, Tab } from 'material-ui';
 
 import LanguageMenu from './language_menu';

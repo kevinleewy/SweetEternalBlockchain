@@ -6,7 +6,7 @@ contract EternalEvents is EternalUsers {
 
     /*** EVENTS ***/
 
-    event EventCreated(uint256 eventId, uint256 creator, uint256 typeId);
+    event EventCreated(uint256 eventId, uint256 indexed creator, uint256 typeId);
     event EventApproved(uint256 eventId, uint256 participantId);
     event EventDisapproved(uint256 eventId, uint256 participantId);
 

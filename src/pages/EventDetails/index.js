@@ -204,7 +204,7 @@ export default class EventDetails extends Component {
  		}
 
 		return (
-			<ul className="col-md-4 list-group">
+			<ul className="list-group">
 				<li className="list-group-item"><h3>{event[8]}</h3></li>
 				<li className="list-group-item"><h4>Description: {event[9]}</h4></li>
 				<li className="list-group-item">{this.renderTimestamp(event[2].toNumber(), event[3].toNumber())}</li>

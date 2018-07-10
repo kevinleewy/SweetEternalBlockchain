@@ -34,6 +34,7 @@ export default class CreateEvent extends Component {
 			mapCenterLatitude: 0.0,
 			mapCenterLongitude: 0.0,
 			hasUser: null,
+			userId: null,
 			translator: props.translator,
 			web3: null
 		}
@@ -100,6 +101,12 @@ export default class CreateEvent extends Component {
 				from: this.state.account
 			}).then( result => {
 				this.setState({ hasUser: result });
+
+				if(result){
+					this.state.contract.addressToUser(this.state.account).then( userId => {
+			            this.setState({ userId });
+			        });
+				}
 			});
 		});
 	}
@@ -199,20 +206,20 @@ export default class CreateEvent extends Component {
 	        {from: this.state.account}
 		).then(result => {
 			this.setState({formSubmitted: true});
-			this.state.contract.EventCreated().watch( (err, response) => {
-	            if(response.args.creator.toNumber()){
-		            alert(`Event successfully created!`);
-		            this.setState({
-		            	formTitle: '',
-		            	formTitleIsPristine: true,
-		            	formDescription: '',
-		            	formDescriptionIsPristine: true,
-		            	formStartTime: moment(),
-		            	formEndTime: moment(),
-		            	formLocation: '',
-		            	formSubmitted: false
-		            });
-		        }
+			this.state.contract.EventCreated({
+				creator: this.state.userId
+			}).watch( (err, response) => {
+	            alert(`Event successfully created!`);
+	            this.setState({
+	            	formTitle: '',
+	            	formTitleIsPristine: true,
+	            	formDescription: '',
+	            	formDescriptionIsPristine: true,
+	            	formStartTime: moment(),
+	            	formEndTime: moment(),
+	            	formLocation: '',
+	            	formSubmitted: false
+	            });
 	        });
 		});
 	}
@@ -226,7 +233,7 @@ export default class CreateEvent extends Component {
 
 		return (
 			<div>
-				<ul className="col-md-4 list-group">
+				<ul className="list-group">
 					<li className="list-group-item">
 						<FormGroup
 							controlId="formTitle"

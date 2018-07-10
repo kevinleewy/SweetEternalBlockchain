@@ -185,8 +185,8 @@ export default class EditUser extends Component {
 			}).watch( (err, response) => {
 	            alert(`Secondary address assigned to ${response.args.newAddress}`);
 	            this.setState({
-	            	name: '',
-	            	nameIsPristine: true,
+	            	address2: '',
+	            	address2IsPristine: true,
 	            	buttonDisabled: false
 	            });
 	        });
@@ -204,8 +204,8 @@ export default class EditUser extends Component {
 			}).watch( (err, response) => {
 	            alert(`Secondary address successfully unset`);
 	            this.setState({
-	            	name: '',
-	            	nameIsPristine: true,
+	            	address2: '',
+	            	address2IsPristine: true,
 	            	buttonDisabled: false
 	            });
 	        });
