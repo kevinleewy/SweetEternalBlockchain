@@ -35,7 +35,6 @@ export default class App extends Component {
 		  account: null,
 		  contract: null,
 		  language: translator.getLocale(),
-		  mobile: false,
 		  web3: null
 		}
 	}
@@ -47,10 +46,6 @@ export default class App extends Component {
 	onLanguageSelect(eventKey){
 		this.setState({ language: eventKey });
 		translator.setLocale(eventKey);
-	}
-
-	toggleMobile(){
-		this.setState({mobile: !this.state.mobile});
 	}
 
 	render() {
@@ -65,6 +60,7 @@ export default class App extends Component {
 		                	mobile={this.state.mobile}
 		                	translator={ translator } />
 
+		                <div className="body">
 		                <Switch>
 		                	<Route path="/users/create" render={(props) => <CreateUser {...props} translator={ translator } />} />
 		                	<Route path="/users/me/edit" render={(props) => <EditUser {...props} translator={ translator } />} />
@@ -76,10 +72,13 @@ export default class App extends Component {
 		                	<Route path="/help" render={(props) => <Help {...props} translator={ translator } />} />
 		                	<Route path="/" render={(props) => <Home {...props} translator={ translator } />} />
 		                </Switch>
+		                </div>
 
 						<hr />
 
-		                <button className="btn btn-primary" onClick={this.toggleMobile.bind(this)}>{this.state.mobile ? 'Web View' : 'Mobile View'}</button>
+		            	<div className="footer">
+		            		<h1>Footer</h1>
+		            	</div>
 					</div>
 				</Router>
 			</div>

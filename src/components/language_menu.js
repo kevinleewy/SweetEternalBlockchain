@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SplitButton, MenuItem } from 'react-bootstrap';
+import { NavDropdown, MenuItem, SplitButton } from 'react-bootstrap';
 
 const LANGUAGE = {
 	'de' : 'Deutsch',
@@ -38,15 +38,14 @@ export default class LanguageMenu extends Component {
 		const menuItems = Object.keys(LANGUAGE).map( key => {
 			return <MenuItem key={key} eventKey={key} onSelect={onSelect}>{ LANGUAGE[key] }</MenuItem>;
 		});
-
 		return (
-			<SplitButton
-				bsStyle="primary"
+			<NavDropdown
+				eventKey={6} 
 				title={ LANGUAGE[this.state.currentLanguage] }
-				id="language"
+				id="language-nav-dropdown"
 			>
 	        	{menuItems}
-	        </SplitButton>
+	        </NavDropdown>
 		);
 	}
 }

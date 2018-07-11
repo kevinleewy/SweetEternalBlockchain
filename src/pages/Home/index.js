@@ -3,6 +3,7 @@ import getWeb3 from '../../utils/getWeb3';
 import { Jumbotron } from 'react-bootstrap';
 
 import CreateUserButton from '../../components/create_user_button';
+import HomeCarousel from '../../components/home_carousel';
 
 import EternalCoreContract from '../../../node_modules/sweeteternal/build/contracts/EternalCore.json';
 
@@ -109,11 +110,12 @@ export default class Home extends Component {
 		return (
 			<div>
 				<h1>{translate('HEADER_welcome')}</h1>
+				<HomeCarousel />
 				<Jumbotron>
 					{translate('HOME_message').map( (s,i) => <p key={i}>{s}</p> ) }
 				</Jumbotron>
-				<h2>Sweet Eternal</h2>
-				<h4>Memories on the Blockchain</h4>
+				<h2>Log Events on a Trustless Platform</h2>
+				<h4>once logged, never editable</h4>
 				<p>Powered by Ethereum</p>
 				<hr />
 				<h2>Statistics</h2>

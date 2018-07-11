@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { MenuItem, Nav, Navbar, NavDropdown, NavItem } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import {AppBar, MuiThemeProvider, Tabs, Tab } from 'material-ui';
 
 import LanguageMenu from './language_menu';
 
-import reactLogo from '../logo.svg';
+//import reactLogo from '../logo.svg';
 import logo from '../assets/images/sweet_eternal_logo_square_transparent.png';
-import banner from '../assets/images/sweet_eternal_banner_narrow.jpg';
 
 export default class CreateEvent extends Component {
 	constructor(props) {
@@ -33,69 +34,55 @@ export default class CreateEvent extends Component {
 		}
 	}
 
-	renderWebBar() {
-
-		const translate = this.state.translator.translate;
-
-		return (
-			<div>
-				<header>
-
-					<img src={reactLogo} className="App-logo" alt="logo.jpg" />
-			        <img src={logo} className="App-logo" alt="logo.jpg" />
-			        <img src={banner} className="App-banner" alt="logo.jpg" />
-
-			        <LanguageMenu
-			        	currentLanguage={this.state.translator.getLocale()}
-			        	onSelect={this.state.onLanguageSelect} />   
-			    
-		     	</header>
-			    <div>
-					<Link to="/" className="btn btn-info">{translate('HEADER_homePage')}</Link>
-			        &emsp;
-			        <Link to="/users/me" className="btn btn-info">{translate('HEADER_myProfile')}</Link>
-			        &emsp;
-			        <Link to="/events/me" className="btn btn-info">{translate('HEADER_myEvents')}</Link>
-			        &emsp;
-			        <Link to="/events/1" className="btn btn-info">Explore</Link>
-			        &emsp;
-			        <Link to="/help" className="btn btn-info">Help</Link>
-		        </div>
-			</div>
-		);
-	}
-
-	renderMobileBar() {
-
-		const translate = this.state.translator.translate;
-
-		return (
-			<div>
-				<MuiThemeProvider>
-		    		<div className="menubar">
-						<AppBar
-							title="Sweet Eternal"
-						>
-							<LanguageMenu
-					        	currentLanguage={this.state.translator.getLocale()}
-					        	onSelect={this.state.onLanguageSelect} /> 
-						</AppBar>
-
-						<Tabs>
-							<Tab label={translate('HEADER_homePage')} containerElement={<Link to="/" />} />
-							<Tab label={translate('HEADER_myProfile')} containerElement={<Link to="/users/me" />} />
-							<Tab label={translate('HEADER_myEvents')} containerElement={<Link to="/events/me" />} />
-							<Tab label="Explore" containerElement={<Link to="/events/1" />} />
-							<Tab label="Help" containerElement={<Link to="/help" />} />
-						</Tabs>
-
-					</div>
-				</MuiThemeProvider>
-			</div>	
-		);
-	}
-
 	render() {
-		return this.state.mobile ? this.renderMobileBar() : this.renderWebBar();
+		const translate = this.state.translator.translate;
+
+		return (
+			<Navbar fixedTop inverse collapseOnSelect>
+				<Navbar.Header>
+					<Navbar.Brand>
+						<LinkContainer to="/">
+							<NavItem eventKey={0}>
+								<img src={logo} alt="logo.jpg" />
+							</NavItem>
+						</LinkContainer>
+					</Navbar.Brand>
+					<Navbar.Toggle />
+				</Navbar.Header>
+				<Navbar.Collapse>
+					<Nav pullRight>
+						<LinkContainer to="/">
+							<NavItem eventKey={1}>
+								{translate('HEADER_homePage')}
+							</NavItem>
+						</LinkContainer>
+						<LinkContainer to="/users/me">
+							<NavItem eventKey={3}>
+								{translate('HEADER_myProfile')}
+							</NavItem>
+						</LinkContainer>
+						<LinkContainer to="/events/me">
+							<NavItem eventKey={4}>
+								{translate('HEADER_myEvents')}
+							</NavItem>
+						</LinkContainer>
+						<LinkContainer to="/events/1">
+							<NavItem eventKey={5}>
+								{translate('HEADER_explore')}
+							</NavItem>
+						</LinkContainer>
+						<LinkContainer to="/help">
+							<NavItem eventKey={6}>
+								{translate('HEADER_help')}
+							</NavItem>
+						</LinkContainer>
+
+						<LanguageMenu
+				        	currentLanguage={this.state.translator.getLocale()}
+				        	onSelect={this.state.onLanguageSelect} />
+					</Nav>
+				</Navbar.Collapse>
+			</Navbar>
+		);
 	}
 }
