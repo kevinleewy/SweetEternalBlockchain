@@ -27,7 +27,8 @@
 }
 
 .App .body{
-  padding: 50px;
+  padding-top: 50px;
+  padding-bottom: 50px;
 }
 
 .navbar-brand {
@@ -37,6 +38,57 @@
 
 .navbar-brand img {
   height: 200px;
+}
+
+.App #footer.container {
+  background-color: #333;
+  color: white;
+  width: 100%;
+}
+
+.social-icon {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+#footerContent > * {
+  color: white;
+}
+
+.row {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#footerContent h4 {
+  text-align: center;
+}
+
+#footerContent p {
+  text-align: left;
+  padding-left: 20px;
+}
+
+/* unvisited link */
+#footerContent a:link {
+    color: white;
+}
+
+/* visited link */
+#footerContent a:visited {
+    color: white;
+}
+
+/* mouse over link */
+#footerContent a:hover {
+    color: white;
+}
+
+/* selected link */
+#footerContent a:active {
+    color: white;
 }
 
 @keyframes App-logo-spin {

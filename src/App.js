@@ -23,6 +23,7 @@ import Profile from './pages/Profile';
 
 //User-defined components
 import Menubar from './components/menubar';
+import Footer from './components/footer';
 
 //Utilities
 import translator from './utils/translator';
@@ -61,24 +62,20 @@ export default class App extends Component {
 		                	translator={ translator } />
 
 		                <div className="body">
-		                <Switch>
-		                	<Route path="/users/create" render={(props) => <CreateUser {...props} translator={ translator } />} />
-		                	<Route path="/users/me/edit" render={(props) => <EditUser {...props} translator={ translator } />} />
-		                	<Route path="/users/me" render={(props) => <MyProfile {...props} translator={ translator } />} />
-		                	<Route path="/users/:id([0-9]+)" render={(props) => <Profile {...props} translator={ translator } />} />
-		                	<Route path="/events/create" render={(props) => <CreateEvent {...props} translator={ translator } />} />
-		                	<Route path="/events/me" render={(props) => <MyEvents {...props} translator={ translator } />} />
-		                	<Route path="/events/:id([0-9]+)" render={(props) => <Event {...props} translator={ translator } />} />
-		                	<Route path="/help" render={(props) => <Help {...props} translator={ translator } />} />
-		                	<Route path="/" render={(props) => <Home {...props} translator={ translator } />} />
-		                </Switch>
+			                <Switch>
+			                	<Route path="/users/create" render={(props) => <CreateUser {...props} translator={ translator } />} />
+			                	<Route path="/users/me/edit" render={(props) => <EditUser {...props} translator={ translator } />} />
+			                	<Route path="/users/me" render={(props) => <MyProfile {...props} translator={ translator } />} />
+			                	<Route path="/users/:id([0-9]+)" render={(props) => <Profile {...props} translator={ translator } />} />
+			                	<Route path="/events/create" render={(props) => <CreateEvent {...props} translator={ translator } />} />
+			                	<Route path="/events/me" render={(props) => <MyEvents {...props} translator={ translator } />} />
+			                	<Route path="/events/:id([0-9]+)" render={(props) => <Event {...props} translator={ translator } />} />
+			                	<Route path="/help" render={(props) => <Help {...props} translator={ translator } />} />
+			                	<Route path="/" render={(props) => <Home {...props} translator={ translator } />} />
+			                </Switch>
 		                </div>
 
-						<hr />
-
-		            	<div className="footer">
-		            		<h1>Footer</h1>
-		            	</div>
+		            	<Footer />
 					</div>
 				</Router>
 			</div>
