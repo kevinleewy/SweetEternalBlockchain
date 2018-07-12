@@ -5,6 +5,7 @@ export default {
    HEADER_explore: 'Explore',
    HEADER_help: 'Help',
    HEADER_welcome: 'Welcome',
+   HEADER_language: 'English',
    HOME_warning: 'Please use the main Ethereum network',
    HOME_activeAccount: 'Active Account',
    HOME_description: 'Your founder identity, always guarded by the blockchain',

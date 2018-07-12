@@ -8,30 +8,34 @@ export default (props) => {
 	return (
 		<Grid id="footer">
 			<Row id="footerContent">
-				<Col sm={2} md={1}>
+				<Col xs={2} sm={2} md={1}>
 				</Col>
-				<Col sm={12} md={6}>
+				<Col xs={8} sm={12} md={6}>
 					<h4>Content Title</h4>
 					<hr />
 					<p>Content Description</p>
 				</Col>
-				<Col sm={4} md={2}>
+				<Col xs={12} sm={6} md={2}>
 					<ul className="list-unstyled">
-						<li><h4>Header 1</h4></li>
+						<li><h4>More Information</h4></li>
 						<hr />
-						<li><a href="/link1">Link 1</a></li>
-						<li><a href="/link2">Link 2</a></li>
+						<li><Link to="/about">About Us</Link></li>
+						<li><Link to="/team">The Team</Link></li>
+						<li><Link to="/roadmap">Roadmap</Link></li>
+						<li><a href="/whitepaper">Whitepaper</a></li>
+						<li><a href="/media">Media</a></li>
+						<li><a href="/blog">Blog</a></li>
 					</ul>
 				</Col>
-				<Col sm={4} md={2}>
+				<Col xs={12} sm={6} md={2}>
 					<ul className="list-unstyled">
-						<li><h4>Header 2</h4></li>
+						<li><h4>Legal</h4></li>
 						<hr />
-						<li><a href="/link3">Link 3</a></li>
-						<li><a href="/link4">Link 4</a></li>
+						<li><Link to="/tnc">Terms and Conditions</Link></li>
+						<li><Link to="/privacy">Privacy Policy</Link></li>
 					</ul>
 				</Col>
-				<Col sm={2} md={1}>
+				<Col xs={2} sm={2} md={1}>
 				</Col>
 			</Row>
 			<Row id="callToAction">

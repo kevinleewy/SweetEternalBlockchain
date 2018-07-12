@@ -70,6 +70,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "deploy": "aws s3 sync build_webpack/ s3://www.sweeteternal.com",
     "test": "node scripts/test.js --env=jsdom"
   },
   "jest": {

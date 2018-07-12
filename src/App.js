@@ -58,7 +58,6 @@ export default class App extends Component {
 		                <Menubar
 		                	currentLanguage={this.state.language}
 		                	onLanguageSelect={this.onLanguageSelect.bind(this)}
-		                	mobile={this.state.mobile}
 		                	translator={ translator } />
 
 		                <div className="body">

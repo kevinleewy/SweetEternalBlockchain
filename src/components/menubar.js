@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import { MenuItem, Nav, Navbar, NavDropdown, NavItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import {AppBar, MuiThemeProvider, Tabs, Tab } from 'material-ui';
-
-import LanguageMenu from './language_menu';
 
 //import reactLogo from '../logo.svg';
 import logo from '../assets/images/sweet_eternal_logo_square_transparent.png';
@@ -15,27 +11,16 @@ export default class CreateEvent extends Component {
 
 		this.state = {
 			onLanguageSelect: props.onLanguageSelect,
-			mobile: props.mobile,
 			translator: props.translator
-		}
-	}
-
-	componentWillReceiveProps(nextProps) {
-		this.setState({
-			mobile: nextProps.mobile
-		});
-	}
-
-	getCurrentLanguage(){
-		switch(this.state.currentLanguage){
-			case 'en' : return 'English';
-			case 'zh' : return '中文';
-			default: return '';
 		}
 	}
 
 	render() {
 		const translate = this.state.translator.translate;
+		const onSelect = this.state.onLanguageSelect;
+		const menuItems = this.state.translator.getLocales().map( key => {
+			return <MenuItem key={key} eventKey={key} onSelect={onSelect}>{ translate('HEADER_language', key) }</MenuItem>;
+		});
 
 		return (
 			<Navbar fixedTop inverse collapseOnSelect>
@@ -66,7 +51,7 @@ export default class CreateEvent extends Component {
 								{translate('HEADER_myEvents')}
 							</NavItem>
 						</LinkContainer>
-						<LinkContainer to="/events/1">
+						<LinkContainer to="/events/0">
 							<NavItem eventKey={5}>
 								{translate('HEADER_explore')}
 							</NavItem>
@@ -77,9 +62,13 @@ export default class CreateEvent extends Component {
 							</NavItem>
 						</LinkContainer>
 
-						<LanguageMenu
-				        	currentLanguage={this.state.translator.getLocale()}
-				        	onSelect={this.state.onLanguageSelect} />
+						<NavDropdown
+							eventKey={7} 
+							title={ translate('HEADER_language') }
+							id="language-nav-dropdown"
+						>
+				        	{menuItems}
+				        </NavDropdown>
 					</Nav>
 				</Navbar.Collapse>
 			</Navbar>
