@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import getWeb3 from '../../utils/getWeb3';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl, InputGroup } from 'react-bootstrap';
 
 import CreateUserButton from '../../components/create_user_button';
 
@@ -18,7 +18,7 @@ export default class EditUser extends Component {
 			nameIsPristine: true,
 			address2: '',
 			address2IsPristine: true,
-			currentDefaultEventApproval: null,
+			currentDefaultEventApproval: '',
 			hasUser: null,
 			userId: null,
 			buttonDisabled: false,
@@ -100,7 +100,9 @@ export default class EditUser extends Component {
 					}).then( user => {
 
 			            this.setState({ currentDefaultEventApproval:
-			            	user[5] ? 'Approve' : 'Reject'
+			            	this.state.translator.translate(
+			            		`ENTRY_${user[5] ? 'approve' : 'reject'}`
+			            	)
 			            });
 			        });
 				}
@@ -226,7 +228,9 @@ export default class EditUser extends Component {
 				}).then( user => {
 
 		            this.setState({ currentDefaultEventApproval:
-		            	user[5] ? 'Approve' : 'Reject'
+		            	this.state.translator.translate(
+		            		`ENTRY_${user[5] ? 'approve' : 'reject'}`
+		            	)
 		            });
 		        });
 	            this.setState({buttonDisabled: false});
@@ -235,47 +239,53 @@ export default class EditUser extends Component {
 	}
 
 	renderContent() {
+
+		const translate = this.state.translator.translate;
+
 		if(!this.state.hasUser) {
 			return (
-				<CreateUserButton />
+				<CreateUserButton translator={this.state.translator}/>
 			);
 		}
 
 		return (
 			<div>
-				<ul className="col-md-4 list-group">
+				<ul className="list-group">
 					<li className="list-group-item">
 						<FormGroup
 							controlId="name"
 							validationState={this.validateName()}
 						>
-							<ControlLabel>New Name</ControlLabel>
-							<FormControl
-								type="text"
-								value={this.state.name}
-								placeholder="Enter new name"
-								onChange={this.onNameChange.bind(this)}
-								onBlur={() => this.setState({nameIsPristine: false})}
-							/>
-							<FormControl.Feedback />
-
-							<button
-								className="btn btn-primary"
-								onClick={this.onNameChangeSave.bind(this)}
-								disabled={this.state.buttonDisabled}>
-								Save
-							</button>
+							<ControlLabel>{translate('FIELD_newName')}</ControlLabel>
+							<InputGroup>
+								<FormControl
+									type="text"
+									value={this.state.name}
+									placeholder={translate('HELPER_newName')}
+									onChange={this.onNameChange.bind(this)}
+									onBlur={() => this.setState({nameIsPristine: false})}
+								/>
+								<FormControl.Feedback />
+								<InputGroup.Button>
+									<button
+										className="btn btn-primary"
+										onClick={this.onNameChangeSave.bind(this)}
+										disabled={this.state.buttonDisabled}>
+										{translate('CTA_save')}
+									</button>
+								</InputGroup.Button>
+							</InputGroup>
 						</FormGroup>
 
 						<FormGroup
 							controlId="assignSecondaryAddress"
 							validationState={this.validateSecondaryAddress()}
 						>
-							<ControlLabel>Assign Secondary Wallet Address</ControlLabel>
+							<ControlLabel>{translate('FIELD_assignSecondaryWalletAddress')}</ControlLabel>
 							<FormControl
 								type="text"
 								value={this.state.address2}
-								placeholder="Enter a wallet address"
+								placeholder={translate('HELPER_wallet')}
 								onChange={this.onAddressChange.bind(this)}
 								onBlur={() => this.setState({address2IsPristine: false})}
 							/>
@@ -285,31 +295,47 @@ export default class EditUser extends Component {
 								className="btn btn-primary"
 								onClick={this.onAddressAssign.bind(this)}
 								disabled={this.state.buttonDisabled}>
-								Assign
+								{translate('CTA_assign')}
 							</button>
 							&nbsp;
 							<button
 								className="btn btn-primary"
 								onClick={this.onAddressUnassign.bind(this)}
 								disabled={this.state.buttonDisabled}>
-								Unassign Current Secondary Address
+								{translate('CTA_unassignCurrentSecondaryAddress')}
 							</button>
 						</FormGroup>
 						
 					</li>
 					<li className="list-group-item">
-						Current Default Event Approval: {this.state.currentDefaultEventApproval}
-						&nbsp;
-					    <button
-					    	className="btn btn-primary"
-					    	onClick={this.toggleDefaultEventApproval.bind(this)}
-					    	disabled={this.state.buttonDisabled}>
-					    	Toggle
-					    </button>
+					    <FormGroup
+							controlId="toggleDefaultEventApproval"
+							validationState={this.validateName()}
+						>
+							<ControlLabel>Current Default Event Approval</ControlLabel>
+							<InputGroup>
+								<FormControl
+									type="text"
+									value={this.state.currentDefaultEventApproval}
+									disabled
+								/>
+								<InputGroup.Button>
+									<button
+								    	className="btn btn-primary"
+								    	onClick={this.toggleDefaultEventApproval.bind(this)}
+								    	disabled={this.state.buttonDisabled}>
+								    	{translate('CTA_toggle')}
+								    </button>
+								</InputGroup.Button>
+							</InputGroup>
+						</FormGroup>
+
 				    </li>
 				</ul>
 				<br />
-				<Link to="/users/me" className="btn btn-primary">Back To Profile</Link>
+				<Link to="/users/me" className="btn btn-primary">
+					{translate('CTA_backToProfile')}
+				</Link>
 			</div>
 		);
 	}

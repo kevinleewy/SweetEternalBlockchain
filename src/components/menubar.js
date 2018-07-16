@@ -18,7 +18,7 @@ export default class CreateEvent extends Component {
 	render() {
 		const translate = this.state.translator.translate;
 		const onSelect = this.state.onLanguageSelect;
-		const menuItems = this.state.translator.getLocales().map( key => {
+		const languages = this.state.translator.getLocales().map( key => {
 			return <MenuItem key={key} eventKey={key} onSelect={onSelect}>{ translate('HEADER_language', key) }</MenuItem>;
 		});
 
@@ -35,7 +35,7 @@ export default class CreateEvent extends Component {
 					<Navbar.Toggle />
 				</Navbar.Header>
 				<Navbar.Collapse>
-					<Nav pullRight>
+					<Nav bsStyle="pills" pullRight>
 						<LinkContainer to="/">
 							<NavItem eventKey={1}>
 								{translate('HEADER_homePage')}
@@ -67,7 +67,7 @@ export default class CreateEvent extends Component {
 							title={ translate('HEADER_language') }
 							id="language-nav-dropdown"
 						>
-				        	{menuItems}
+				        	{languages}
 				        </NavDropdown>
 					</Nav>
 				</Navbar.Collapse>

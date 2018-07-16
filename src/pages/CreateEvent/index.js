@@ -4,7 +4,7 @@ import getWeb3 from '../../utils/getWeb3';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Geocode from "react-geocode";
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import { DropdownButton, ControlLabel, FormGroup, FormControl, InputGroup, Label, MenuItem } from 'react-bootstrap';
 
 import {actualLatitudeToContractLatitude, actualLongitudeToContractLongitude} from '../../utils/coordinateConverter';
 import CreateUserButton from '../../components/create_user_button';
@@ -21,6 +21,8 @@ export default class CreateEvent extends Component {
 		this.state = {
 			account: null,
 			contract: null,
+			eventTypes: [],
+			selectedEventId: 0,
 			formTitleIsPristine: true,
 			formDescriptionIsPristine: true,
 			formTitle: '',
@@ -36,6 +38,7 @@ export default class CreateEvent extends Component {
 			hasUser: null,
 			userId: null,
 			translator: props.translator,
+			walletBalance: null,
 			web3: null
 		}
 	}
@@ -96,6 +99,11 @@ export default class CreateEvent extends Component {
 	    eternalCore.deployed().then( instance => {
 	        this.setState({contract : instance});
 
+	        //Load walletBalance
+	        instance.balanceOf(this.state.account).then( walletBalance => {
+				this.setState({ walletBalance: walletBalance.toNumber() });
+			});
+
 	        //Load user
 	        instance.hasUser.call({
 				from: this.state.account
@@ -108,6 +116,22 @@ export default class CreateEvent extends Component {
 			        });
 				}
 			});
+
+			//Load event types
+			instance.totalEventTypes().then( total => {
+	 			for(var i = 1; i <= total; i++){
+	 				(async eventTypeId => {
+	 					var eventType = await instance.eventTypes(eventTypeId);
+	 					var eventName = eventType[0].replace(/^\w/, c => c.toUpperCase());
+						this.setState({
+ 							eventTypes: this.state.eventTypes.concat([{
+ 								id: eventTypeId,
+ 								name: eventName,
+ 							}])
+ 						});
+	 				})(i);
+	 			}
+	 		});
 		});
 	}
 
@@ -129,6 +153,36 @@ export default class CreateEvent extends Component {
 			return 'error';
 		}
 		return 'success'; 
+	}
+
+	onEventTypeSelect(eventKey) {
+		this.setState({selectedEventId: parseInt(eventKey, 10)});
+	}
+
+	getSelectedEventType(){
+		const eventId = this.state.selectedEventId;
+		if(eventId === 0){
+			return '';
+		}
+		return this.state.eventTypes[eventId-1].name;
+	}
+
+	calculateMinStartDate(){
+		const balance = this.state.walletBalance;
+		if(balance < 10){
+			return moment().subtract(2, 'weeks');
+		}
+		if(balance < 1000){
+			return moment().subtract(3, 'months');
+		}
+		if(balance < 100000){
+			return moment().subtract(1, 'year');
+		}
+		if(balance < 10000000){
+			return moment().subtract(3, 'years');
+		}
+		return moment(0);
+
 	}
 
 	onTitleChange(event) {
@@ -197,7 +251,7 @@ export default class CreateEvent extends Component {
 		this.state.contract.createEvent.sendTransaction(
 			this.state.formTitle,
 			this.state.formDescription,
-			0,
+			this.state.selectedEventId,
 			actualLatitudeToContractLatitude(this.state.formLatitude),
 			actualLongitudeToContractLongitude(this.state.formLongitude),
 			this.state.formStartTime.unix(),
@@ -227,9 +281,21 @@ export default class CreateEvent extends Component {
 	renderContent(){
 		if(!this.state.hasUser) {
 			return (
-				<CreateUserButton />
+				<CreateUserButton translator={this.state.translator} />
 			);
 		}
+
+		const translate = this.state.translator.translate;
+		const minStartDate = this.calculateMinStartDate();
+		const eventTypeOptions = this.state.eventTypes.map( e => {
+			return <MenuItem
+				key={e.id}
+				eventKey={e.id}
+				onSelect={this.onEventTypeSelect.bind(this)}
+			>
+				{e.name}
+			</MenuItem>
+		});
 
 		return (
 			<div>
@@ -239,11 +305,11 @@ export default class CreateEvent extends Component {
 							controlId="formTitle"
 							validationState={this.validateTitle()}
 						>
-							<ControlLabel>Title</ControlLabel>
+							<ControlLabel>{translate('FIELD_title')}</ControlLabel>
 							<FormControl
 								type="text"
 								value={this.state.formTitle}
-								placeholder="Enter event title"
+								placeholder={translate('HELPER_eventTitle')}
 								onChange={this.onTitleChange.bind(this)}
 								onBlur={() => this.setState({formTitleIsPristine: false})}
 							/>
@@ -254,29 +320,59 @@ export default class CreateEvent extends Component {
 							controlId="formDescription"
 							validationState={this.validateDescription()}
 						>
-							<ControlLabel>Description</ControlLabel>
+							<ControlLabel>{translate('FIELD_description')}</ControlLabel>
 							<FormControl
 								type="text"
 								value={this.state.formDescription}
-								placeholder="Enter event description"
+								placeholder={translate('HELPER_eventDescription')}
 								onChange={this.onDescriptionChange.bind(this)}
 								onBlur={() => this.setState({formDescriptionIsPristine: false})}
 							/>
 							<FormControl.Feedback />
 						</FormGroup>
+
+						<FormGroup
+							controlId="formEventType"
+						>
+							
+							<ControlLabel>{translate('FIELD_eventType')}</ControlLabel>
+							<InputGroup>
+							<DropdownButton
+								componentClass={InputGroup.Button}
+								id="input-dropdown-addon"
+								title="Select"
+							>
+								{ eventTypeOptions }
+							</DropdownButton>
+							<FormControl
+								type="text"
+								value={this.getSelectedEventType()}
+								placeholder={translate('HELPER_selectEventType')}
+							/>
+							<FormControl.Feedback />
+							</InputGroup>
+							<Label bsStyle="info">Don't see the event type you want?</Label>
+						    <p>Create one <Link to="/createEventType">here</Link>!</p>
+						    <p>For more info, visit the <Link to="/help">help page</Link>.</p>
+						</FormGroup>
 					</li>
 
 					<li className="list-group-item">
-						<strong>Start Time:</strong>
+						<strong>{translate('FIELD_beganOn')}*:</strong>
 						<DatePicker
 					        selected={this.state.formStartTime}
-					        onChange={this.onStartTimeChange.bind(this)} />
+					        onChange={this.onStartTimeChange.bind(this)}
+					        minDate={minStartDate} />
 					    <br />
-					    <strong>End Time:</strong>
+					    <strong>{translate('FIELD_endedOn')}:</strong>
 					    <DatePicker
 					        selected={this.state.formEndTime}
 					        onChange={this.onEndTimeChange.bind(this)}
 					        minDate={this.state.formStartTime} />
+					    <br />
+					    <Label bsStyle="danger">*Restrictions apply:</Label>
+					    <p>Based on your tier, your start date can be as far back as {minStartDate.format("MM/DD/YYYY")}.</p>
+					    <p>For more info, visit the <Link to="/help">help page</Link>.</p>
 					</li>
 
 					<li className="list-group-item">
@@ -284,7 +380,7 @@ export default class CreateEvent extends Component {
 							controlId="formLocation"
 							validationState={null}
 						>
-							<ControlLabel>Location</ControlLabel>
+							<ControlLabel>{translate('FIELD_location')}</ControlLabel>
 							<FormControl
 								type="text"
 								value={this.state.formLocation}
@@ -316,10 +412,12 @@ export default class CreateEvent extends Component {
 					className="btn btn-primary"
 					onClick={this.onCreateButtonClick.bind(this)}
 					disabled={this.state.formSubmitted}>
-					{this.state.formSubmitted ? 'Creating...' : 'Create'}
+					{this.state.formSubmitted ? translate('CTA_creating') : translate('CTA_create')}
 				</button>
 				&nbsp;
-				<Link to="/events/me" className="btn btn-primary">Back to My Events</Link>
+				<Link to="/events/me" className="btn btn-primary">
+					{translate('CTA_backToMyEvents')}
+				</Link>
 			</div>
 		);
 	}

@@ -8,7 +8,8 @@ export default class EventList extends Component {
 
 		this.state = {
 			contract: props.contract,
-			eventIds: props.eventIds
+			eventIds: props.eventIds,
+			translator: props.translator
 		};
 	}
 
@@ -22,7 +23,8 @@ export default class EventList extends Component {
 				<EventListItem
 					key={eventId}
 					id={eventId}
-					contract={contract}/>
+					contract={contract}
+					translator={this.state.translator} />
 			);
 		});
 

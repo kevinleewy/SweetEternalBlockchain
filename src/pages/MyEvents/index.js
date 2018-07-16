@@ -108,7 +108,7 @@ export default class MyEvents extends Component {
 
 		if(!this.state.hasUser) {
 			return (
-				<CreateUserButton />
+				<CreateUserButton translator={this.state.translator} />
 			);
 		}
 
@@ -118,7 +118,7 @@ export default class MyEvents extends Component {
 
 		return (
 			<div>
-				<EventList contract={contract} eventIds={eventIds} />
+				<EventList contract={contract} eventIds={eventIds} translator={this.state.translator}/>
 			</div>
 		);
 	}
@@ -129,7 +129,9 @@ export default class MyEvents extends Component {
 			<div>
 				<h1>{this.state.translator.translate('HEADER_myEvents')}</h1>
 				<hr />
-				<Link to="/events/create" className="btn btn-primary">Create Event</Link>
+				<Link to="/events/create" className="btn btn-primary">
+					{this.state.translator.translate('CTA_createEvent')}
+				</Link>
 				<hr />
 				{this.renderContent()}
 			</div>

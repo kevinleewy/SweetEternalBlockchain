@@ -22,6 +22,7 @@ export default class EventDetails extends Component {
 			id: parseInt(this.props.match.params.id, 10),
 			error: null,
 			event: null,
+			eventType: null,
 			participants: [],
 			creator: null,
 			location: 'Unknown',
@@ -114,6 +115,13 @@ export default class EventDetails extends Component {
 	        	} else {
 			        instance.events(this.state.id).then(event => {
 						this.setState({ event });
+
+						//Load event type
+						this.state.contract.eventTypes(event[7]).then(eventType => {
+							var eventTypeName = eventType[0].replace(/^\w/, c => c.toUpperCase());
+							this.setState({ eventType: eventTypeName });
+						});
+
 						this.setState({lat: contractLatitudeToActualLatitude(event[5].toNumber())});
 			 			this.setState({lng: contractLongitudeToActualLongitude(event[6].toNumber())});
 			 			
@@ -165,17 +173,20 @@ export default class EventDetails extends Component {
 
 	renderTimestamp(start, end){
 		if(start === end){
-			return <p>Occured on: {timeConverter(start)}</p>;
+			return <p>{this.state.translator.translate('FIELD_occuredOn')}: {timeConverter(start)}</p>;
 		}
 		return (
 			<div>
-				<p>Began on: {timeConverter(start)}</p>
-				<p>Ended on: {timeConverter(end)}</p>
+				<p>{this.state.translator.translate('FIELD_beganOn')}: {timeConverter(start)}</p>
+				<p>{this.state.translator.translate('FIELD_endedOn')}: {timeConverter(end)}</p>
 			</div>
 		);
 	}
 
 	renderParticipants(){
+
+		const translate = this.state.translator.translate;
+
 		if(this.state.participants.length === 0){
 			return <p>No participants</p>
 		}
@@ -183,14 +194,16 @@ export default class EventDetails extends Component {
 		const _participants = this.state.participants.map( (p, index) => {
 			return (
 				<div key={index}>
-					<span><Link to={`/users/${p.id}`}>{p.name}</Link>{!p.approval && " (Rejected)"}</span>
+					<span>
+						<Link to={`/users/${p.id}`}>{p.name}</Link>{!p.approval && " ({translate('FIELD_rejected')})"}
+					</span>
 				</div>
 			);
 		});
 
 		return (
 			<div>
-				<p>Participants:</p>
+				<p>{translate('FIELD_participants')}:</p>
 				{ _participants }
 			</div>
 		);
@@ -198,6 +211,7 @@ export default class EventDetails extends Component {
 
 	renderEventDetails(){
 		const { event, lat, lng, location } = this.state;
+		const translate = this.state.translator.translate;
 
  		if(event == null){
  			return <div>Loading...</div>
@@ -206,19 +220,20 @@ export default class EventDetails extends Component {
 		return (
 			<ul className="list-group">
 				<li className="list-group-item"><h3>{event[8]}</h3></li>
-				<li className="list-group-item"><h4>Description: {event[9]}</h4></li>
+				<li className="list-group-item"><h4>{translate('FIELD_description')}: {event[9]}</h4></li>
+				<li className="list-group-item">{translate('FIELD_eventType')}: {this.state.eventType}</li>
 				<li className="list-group-item">{this.renderTimestamp(event[2].toNumber(), event[3].toNumber())}</li>
 				<li className="list-group-item">
 					<div>
-						<p>Location: {location} ({lat.toFixed(4)}, {lng.toFixed(4)})</p>
+						<p>{translate('FIELD_location')}: {location} ({lat.toFixed(4)}, {lng.toFixed(4)})</p>
 						<GoogleMap lat={lat} lng={lng} />
 					</div>
 				</li>
 				<li className="list-group-item">{this.renderParticipants()}</li>	
 				<li className="list-group-item">
 					<div>
-						<p>Created by: <Link to={`/users/${event[0].toNumber()}`}>{this.state.creator}</Link></p>
-						<p>Created on: {timeConverter(event[1])}</p>
+						<p>{translate('FIELD_createdBy')}: <Link to={`/users/${event[0].toNumber()}`}>{this.state.creator}</Link></p>
+						<p>{translate('FIELD_createdOn')}: {timeConverter(event[1])}</p>
 					</div>
 				</li>		
 			</ul>
@@ -232,13 +247,14 @@ export default class EventDetails extends Component {
 			<div>
 				<div>
 					<h1>Explore Events</h1>
-					<EventSearchbar />
+					<EventSearchbar translator={this.state.translator}/>
 				</div>
 				<hr />
 				<Pagination bsSize="medium">
-					<Pagination.Item active={false} onClick={() => this.reload(id - 1)}>{id - 1}</Pagination.Item>
+					{id > 0 && <Pagination.Item active={false} onClick={() => this.reload(id - 1)}>{id - 1}</Pagination.Item>}
 					<Pagination.Item active={true}>{id}</Pagination.Item>
 					<Pagination.Item active={false} onClick={() => this.reload(id + 1)}>{id + 1}</Pagination.Item>
+					{id === 0 && <Pagination.Item active={false} onClick={() => this.reload(id + 2)}>{id + 2}</Pagination.Item>}
 				</Pagination>
 				{this.state.error ? this.renderError() : this.renderEventDetails()}
 			</div>

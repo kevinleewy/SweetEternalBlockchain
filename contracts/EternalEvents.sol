@@ -7,8 +7,9 @@ contract EternalEvents is EternalUsers {
     /*** EVENTS ***/
 
     event EventCreated(uint256 eventId, uint256 indexed creator, uint256 typeId);
-    event EventApproved(uint256 eventId, uint256 participantId);
-    event EventDisapproved(uint256 eventId, uint256 participantId);
+    event EventTypeCreated(uint256 eventTypeId, string eventTypeName);
+    event EventApproved(uint256 eventId, uint256 indexed participantId);
+    event EventDisapproved(uint256 eventId, uint256 indexed participantId);
 
     /*** CONSTANTS ***/
     uint256 public numOfDaysAgoLimit = 2 weeks;	//applies only to users under bronze tier
@@ -18,6 +19,12 @@ contract EternalEvents is EternalUsers {
     struct Participant {
         uint256 userId;          		//participant's user ID
         bool approval;          		//participant's approval of event (true by default)
+    }
+
+    struct EventType {
+        string name;                    //event type name
+        address creator;                //creator of event type
+        uint256 count;                  //number of events of this type created
     }
 
     struct Event {
@@ -43,11 +50,17 @@ contract EternalEvents is EternalUsers {
     //participants[eventId][participantNum]
     mapping(uint256 => mapping(uint256 => Participant)) public participants;
 
+    EventType[] public eventTypes;
 
     /*** MODIFIERS ***/
 
     modifier isValidEventId(uint256 _eventId) {
         require (_eventId < events.length);
+        _;
+    }
+
+    modifier isValidEventTypeId(uint256 _eventTypeId) {
+        require (_eventTypeId > 0 && _eventTypeId < eventTypes.length);
         _;
     }
 
@@ -111,6 +124,30 @@ contract EternalEvents is EternalUsers {
 
             return result;
         }
+    }
+
+    function createEventType(string _eventName) public {
+
+        //Add validation
+
+        EventType memory _eventType = EventType({
+            name: _eventName,
+            creator: msg.sender,
+            count: 0
+        });
+
+        uint256 newEventTypeId = eventTypes.push(_eventType) - 1;
+
+        //Add bounty
+
+        // emit the EventTypeCreated event
+        emit EventTypeCreated(newEventTypeId, _eventName);
+    }
+
+    // Returns the total number of Event Types currently in existence
+    // We assume that type = 0 is the Null Event Type
+    function totalEventTypes() public view returns (uint) {
+        return eventTypes.length - 1;
     }
 
     // Approves an event
@@ -180,6 +217,7 @@ contract EternalEvents is EternalUsers {
     )
         public
         onlyUser
+        isValidEventTypeId(_typeId)
         isValidLocation(_locLat, _locLon)
         returns (uint256)
     {
@@ -191,7 +229,7 @@ contract EternalEvents is EternalUsers {
         }
 
         //Creates the event. Also emits the EventCreated event
-        _createEvent(_name, _notes, _typeId, _locLat, _locLon, _startTime, _endTime, _participantIds);
+        return _createEvent(_name, _notes, _typeId, _locLat, _locLon, _startTime, _endTime, _participantIds);
     }
 
     // An internal method that creates a new Event and stores it.
@@ -250,6 +288,9 @@ contract EternalEvents is EternalUsers {
             	approval: user.defaultApproval
             });
         }
+
+        //Increment counter for event type
+        eventTypes[_typeId].count += 1;
 
         // emit the EventCreated event
         emit EventCreated(newEventId, addressToUser[msg.sender], _typeId);

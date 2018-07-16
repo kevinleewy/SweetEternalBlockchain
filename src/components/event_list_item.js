@@ -16,15 +16,24 @@ export default class EventListItem extends Component {
 			contract: props.contract,
 			id: props.id,
 			event: null,
+			eventType: null,
 			location: 'Unknown',
 			lat: 0.0,
 			lng: 0.0,
+			translator: props.translator
 		};
 	}
 
 	componentWillMount(){
 		this.state.contract.events(this.state.id).then(event => {
 			this.setState({ event });
+
+			//Load event type
+			this.state.contract.eventTypes(event[7]).then(eventType => {
+				var eventTypeName = eventType[0].replace(/^\w/, c => c.toUpperCase());
+				this.setState({ eventType: eventTypeName });
+			});
+
 			this.setState({lat: contractLatitudeToActualLatitude(event[5].toNumber())});
  			this.setState({lng: contractLongitudeToActualLongitude(event[6].toNumber())});
  			// Get address from latitude & longitude.
@@ -42,12 +51,12 @@ export default class EventListItem extends Component {
 
 	renderTimestamp(start, end){
 		if(start === end){
-			return <p>Occured on: {timeConverter(start)}</p>;
+			return <p>{this.state.translator.translate('FIELD_occuredOn')}: {timeConverter(start)}</p>;
 		}
 		return (
 			<div>
-				<p>Began on: {timeConverter(start)}</p>
-				<p>Ended on: {timeConverter(end)}</p>
+				<p>{this.state.translator.translate('FIELD_beganOn')}: {timeConverter(start)}</p>
+				<p>{this.state.translator.translate('FIELD_endedOn')}: {timeConverter(end)}</p>
 			</div>
 		);
 	}
@@ -65,10 +74,11 @@ export default class EventListItem extends Component {
 				<h3>{event[8]}</h3>
 				<hr />
 				<h4>{event[9]}</h4>
+				<p>{this.state.translator.translate('FIELD_eventType')}: {this.state.eventType}</p>
 				{this.renderTimestamp(event[2].toNumber(), event[3].toNumber())}
-				<p>Location: {location} ({lat.toFixed(4)}, {lng.toFixed(4)})</p>
+				<p>{this.state.translator.translate('FIELD_location')}: {location} ({lat.toFixed(4)}, {lng.toFixed(4)})</p>
 				<GoogleMap lat={lat} lng={lng}/>
-				<Link to={`/events/${this.state.id}`} className="btn btn-info">More Details</Link>
+				<Link to={`/events/${this.state.id}`} className="btn btn-info">{this.state.translator.translate('CTA_moreDetails')}</Link>
 			</li>
 		);
 	}

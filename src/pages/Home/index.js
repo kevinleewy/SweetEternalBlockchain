@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import getWeb3 from '../../utils/getWeb3';
-import { Jumbotron } from 'react-bootstrap';
+import { Badge, Jumbotron } from 'react-bootstrap';
 
 import CreateUserButton from '../../components/create_user_button';
 import HomeCarousel from '../../components/home_carousel';
@@ -8,25 +9,29 @@ import HomeCarousel from '../../components/home_carousel';
 import EternalCoreContract from '../../../node_modules/sweeteternal/build/contracts/EternalCore.json';
 
 export default class Home extends Component {
-	constructor(props) {
+	constructor(props, context) {
 		super(props)
+
+		/**
+		 * web3Context = {
+		 *   accounts: {Array<string>} - All accounts
+		 *   selectedAccount: {string} - Default ETH account address (coinbase)
+		 *   network: {string} - One of 'MAINNET', 'ROPSTEN', or 'UNKNOWN'
+		 *   networkId: {string} - The network ID (e.g. '1' for main net)
+		 * }
+		 */
+		//console.log(context.web3);
 
 		this.state = {
 		  account: null,
 		  contract: null,
 		  hasUser: false,
-		  language: props.language,
 		  totalEvents: 'Loading...',
+		  totalEventTypes: 'Loading...',
 		  totalUsers: 'Loading...',
 		  translator: props.translator,
 		  web3: null
 		}
-	}
-
-	componentWillReceiveProps(nextProps) {
-		this.setState({
-			language: nextProps.language
-		});
 	}
 
 	componentWillMount() {
@@ -73,7 +78,7 @@ export default class Home extends Component {
 	}
 
 	instantiateContract() {
-		const contract = require('truffle-contract')
+		const contract = require('truffle-contract');
 
 	    //Extract contract ABI
 	    const eternalCore = contract(EternalCoreContract);
@@ -94,12 +99,18 @@ export default class Home extends Component {
 				this.setState({ totalEvents: totalEvents.toNumber() });
 			});
 
+			instance.totalEventTypes().then( totalEventTypes => {
+				this.setState({ totalEventTypes: totalEventTypes.toNumber() });
+			});
+
 			//Load user
 	        instance.hasUser.call({
 				from: this.state.account
 			}).then( result => {
 				this.setState({ hasUser: result });
 			});
+		}).catch((err) => {
+			console.log(err);
 		});
 	}
 
@@ -115,16 +126,27 @@ export default class Home extends Component {
 					{translate('HOME_message').map( (s,i) => <p key={i}>{s}</p> ) }
 				</Jumbotron>
 				<h2>Log Events on a Trustless Platform</h2>
-				<h4>once logged, never editable</h4>
+				<h4>Once logged, never immutable</h4>
 				<p>Powered by Ethereum</p>
 				<hr />
-				<h2>Statistics</h2>
-				<ul className="list-group">
-					<li className="list-group-item">Total Number of Users: {this.state.totalUsers}</li>
-					<li className="list-group-item">Total Number of Events: {this.state.totalEvents}</li>
+				<h2>{translate('HEADER_statistics')}</h2>
+				<ul id="statistics" className="list-group">
+					<li className="list-group-item">
+						{translate('FIELD_totalNumberOfUsers')}: <Badge>{this.state.totalUsers}</Badge>
+					</li>
+					<li className="list-group-item">
+						{translate('FIELD_totalNumberOfEvents')}: <Badge>{this.state.totalEvents}</Badge>
+					</li>
+					<li className="list-group-item">
+						{translate('FIELD_totalNumberOfEventTypes')}: <Badge>{this.state.totalEventTypes}</Badge>
+					</li>
 				</ul>
-				{!this.state.hasUser && <div><hr /><CreateUserButton /></div>}
+				{!this.state.hasUser && <div><hr /><CreateUserButton translator={this.state.translator} /></div>}
 			</div>
 		);
 	}
 }
+
+Home.contextTypes = {
+  web3: PropTypes.object
+};

@@ -7,6 +7,9 @@ contract EternalCore is EternalEvents {
     /// @notice Creates the main SweetEternal smart contract instance.
     constructor() public Ownable() EternalToken() {
 
+        createEventType("null event");
+        createEventType("birthday");
+
         // start with the null user 0 - so that all valid user IDs are non-zero
         _createUser("Null User", 0, false);
 

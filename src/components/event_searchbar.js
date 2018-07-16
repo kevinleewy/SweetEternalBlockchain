@@ -7,7 +7,8 @@ export default class EventSearchbar extends Component {
 		super(props);
 
 		this.state = {
-			eventId: ''
+			eventId: '',
+			translator: props.translator
 		};
 	}
 
@@ -25,7 +26,7 @@ export default class EventSearchbar extends Component {
 					to={`/events/${this.state.eventId}`}
 					className="btn btn-info"
 					disabled={!this.state.eventId} >
-					Search
+					{this.state.translator.translate('CTA_search')}
 				</Link>
 			</div>
 		);

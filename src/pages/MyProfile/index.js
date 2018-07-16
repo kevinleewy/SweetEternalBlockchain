@@ -112,14 +112,16 @@ export default class MyProfile extends Component {
 
 		if(!this.state.hasUser) {
 			return (
-				<CreateUserButton />
+				<CreateUserButton translator={this.state.translator} />
 			);
 		}
 
         return (
         	<div>
-				<UserInfo user={this.state.user} />
-				<Link to="/users/me/edit" className="btn btn-primary">Edit</Link>
+				<UserInfo user={this.state.user} translator={this.state.translator} />
+				<Link to="/users/me/edit" className="btn btn-primary">
+					{this.state.translator.translate('CTA_edit')}
+				</Link>
 			</div>
 		);
 
@@ -127,8 +129,20 @@ export default class MyProfile extends Component {
 
 	renderWallet() {
 
+		if(this.state.contract == null){
+			return (
+				<div>
+					Loading Smart Contract...
+				</div>
+			); 
+		}
+
 		return (
-			<WalletInfo account={this.state.account} balance={this.state.walletBalance} />
+			<WalletInfo
+				account={this.state.account}
+				balance={this.state.walletBalance}
+				contract={this.state.contract}
+				translator={this.state.translator} />
 		);
 	}
 

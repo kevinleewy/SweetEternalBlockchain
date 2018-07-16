@@ -3,7 +3,7 @@ import GoogleMapReact from 'google-map-react';
 
 export default ({ lat, lng, onClick }) => {
 	return (
-		<div style={{ height: '20vh', width: '30%' }}>
+		<div style={{ height: '20vh', width: '250px' }}>
 			<GoogleMapReact
 	        	bootstrapURLKeys={{ key: "key" }}
 	        	center={{lat, lng}}
