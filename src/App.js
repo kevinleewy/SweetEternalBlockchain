@@ -3,7 +3,7 @@ import getWeb3 from './utils/getWeb3';
 //import PropTypes from 'prop-types';
 
 import { Alert } from 'react-bootstrap'
-import {BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Web3Provider } from 'react-web3';
 
 //Styling
@@ -59,13 +59,13 @@ export default class App extends Component {
 			results.web3.version.getNetwork((err, netId) => {
 		    	switch (netId) {
 					case "1":
-						console.log('This is mainnet');
+						console.log('This is Main Ethereum network');
 						break;
 					case "2":
 						console.log('This is the deprecated Morden test network.');
 						break;
 					case "3":
-						console.log('This is the ropsten test network.');
+						console.log('This is the Ropsten test network.');
 						break;
 					case "4":
 						console.log('This is the Rinkeby test network.');
@@ -86,6 +86,7 @@ export default class App extends Component {
 			this.instantiateContract();
 		}).catch((err) => {
 			console.log(err);
+			this.setState({error : err});
 			//console.log('Error finding web3.');
 		});
 
@@ -135,7 +136,7 @@ export default class App extends Component {
 			                <Switch>
 			                	<Route path="/users/create" render={(props) => <CreateUser {...props} translator={ translator } />} />
 			                	<Route path="/users/me/edit" render={(props) => <EditUser {...props} translator={ translator } />} />
-			                	<Route path="/users/me" render={(props) => <MyProfile {...props} translator={ translator } />} />
+			                	<Route path="/users/me" render={(props) => <MyProfile {...props} account={this.state.account} contract={this.state.contract} translator={ translator } />} />
 			                	<Route path="/users/:id([0-9]+)" render={(props) => <Profile {...props} translator={ translator } />} />
 			                	<Route path="/createEventType" render={(props) => <CreateEventType {...props} translator={ translator } />} />
 			                	<Route path="/events/create" render={(props) => <CreateEvent {...props} translator={ translator } />} />

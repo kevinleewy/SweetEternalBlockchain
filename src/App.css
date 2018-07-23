@@ -84,6 +84,11 @@
   width: 30%;
 }
 
+#eventSearchBar {
+  margin: 0 auto;
+  width: 300px;
+}
+
 #footerContent > * {
   color: white;
 }

@@ -156,7 +156,7 @@ export default class WalletInfo extends Component {
 							<FormControl
 								type="text"
 								value={this.state.amount}
-								placeholder="Input an amount"
+								placeholder={translate('HELPER_amountToTransfer')}
 								onChange={this.onAmountChange.bind(this)}
 								onBlur={() => this.setState({amountIsPristine: false})}
 							/>

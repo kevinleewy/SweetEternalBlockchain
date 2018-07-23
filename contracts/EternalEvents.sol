@@ -13,6 +13,9 @@ contract EternalEvents is EternalUsers {
 
     /*** CONSTANTS ***/
     uint256 public numOfDaysAgoLimit = 2 weeks;	//applies only to users under bronze tier
+    uint256 public eventTypeCountForReward = 5;
+    uint256 public eventTypeCreationReward = 10; //enough tokens to hit bronze tier
+    uint256 public eventTypeCreationRewardSupply = 50000; //enough for 5000 events
 
     /*** DATA TYPES ***/
 
@@ -228,6 +231,11 @@ contract EternalEvents is EternalUsers {
         	require(isAtLeastBronze());
         }
 
+        //Check for gold priviledges
+        if(_participantIds.length > 5){
+            require(isAtLeastGold());
+        }
+
         //Creates the event. Also emits the EventCreated event
         return _createEvent(_name, _notes, _typeId, _locLat, _locLon, _startTime, _endTime, _participantIds);
     }
@@ -292,10 +300,23 @@ contract EternalEvents is EternalUsers {
         //Increment counter for event type
         eventTypes[_typeId].count += 1;
 
+        //Calculate rewards for event creator
+        _rewardEventCreator(_typeId);
+
         // emit the EventCreated event
         emit EventCreated(newEventId, addressToUser[msg.sender], _typeId);
 
         return newEventId;
+    }
+
+    function _rewardEventCreator(uint256 _typeId) private {
+        if(eventTypeCreationRewardSupply >= eventTypeCreationReward &&
+            eventTypes[_typeId].count == eventTypeCountForReward) {
+            address creator = eventTypes[_typeId].creator;
+            totalSupply_ = totalSupply_.add(eventTypeCreationReward);
+            eventTypeCreationRewardSupply = eventTypeCreationRewardSupply.sub(eventTypeCreationReward);
+            balances[creator] = balances[creator].add(eventTypeCreationReward);
+        }
     }
     
 }

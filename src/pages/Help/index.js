@@ -30,32 +30,32 @@ export default (props) => {
 							<tr>
 								<td>Wood</td>
 								<td>0</td>
-								<td>Create a tier 1 event that occured no more than 2 weeks ago, with up to 5 participants. The exception to this is the birthday event that gets created when the user is created.</td>
+								<td>Create an event that occured no more than 2 weeks ago, with up to 5 participants. The exception to this is the birthday event that gets created when the user is created.</td>
 							</tr>
 							<tr>
 								<td>Bronze</td>
 								<td>10</td>
-								<td>2 week restriction on event creation lifted.</td>
+								<td>Start time restriction on event creation extended to 3 months.</td>
 							</tr>
 							<tr>
 								<td>Silver</td>
 								<td>1000</td>
-								<td>Create a tier 2 event</td>
+								<td>Start time restriction on event creation extended to 1 year.</td>
 							</tr>
 							<tr>
 								<td>Gold</td>
 								<td>100000</td>
-								<td>Restriction on number of participants lifted.</td>
+								<td>Start time restriction on event creation extended to 3 years. Restriction on number of participants lifted.</td>
 							</tr>
 							<tr>
 								<td>Platinum</td>
 								<td>10000000</td>
-								<td>Create a tier 3 event</td>
+								<td>Start time restriction on event creation extended to 10 years.</td>
 							</tr>
 							<tr>
 								<td>Diamond</td>
 								<td>1000000000</td>
-								<td>Create an event type at a tier of choice.</td>
+								<td>All restrictions lifted.</td>
 							</tr>
 						</tbody>
 					</Table>

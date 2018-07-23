@@ -7,7 +7,7 @@ export default ({ lat, lng, onClick }) => {
 			<GoogleMapReact
 	        	bootstrapURLKeys={{ key: "key" }}
 	        	center={{lat, lng}}
-	        	defaultZoom={12}
+	        	defaultZoom={16}
 	        	onClick={onClick}>
 	        </GoogleMapReact>
         </div>

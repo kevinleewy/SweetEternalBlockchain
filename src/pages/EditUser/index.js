@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import getWeb3 from '../../utils/getWeb3';
-import { FormGroup, ControlLabel, FormControl, InputGroup } from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl, InputGroup, Label } from 'react-bootstrap';
 
 import CreateUserButton from '../../components/create_user_button';
 
@@ -20,6 +20,7 @@ export default class EditUser extends Component {
 			address2IsPristine: true,
 			currentDefaultEventApproval: '',
 			hasUser: null,
+			isAtLeastBronze: false,
 			userId: null,
 			buttonDisabled: false,
 			translator: props.translator,
@@ -32,29 +33,6 @@ export default class EditUser extends Component {
 		getWeb3.then(results => {
 			this.setState({
 				web3: results.web3
-			});
-
-			//Detect network
-			results.web3.version.getNetwork((err, netId) => {
-		    	switch (netId) {
-					case "1":
-						console.log('This is mainnet');
-						break;
-					case "2":
-						console.log('This is the deprecated Morden test network.');
-						break;
-					case "3":
-						console.log('This is the ropsten test network.');
-						break;
-					case "4":
-						console.log('This is the Rinkeby test network.');
-						break;
-					case "42":
-						console.log('This is the Kovan test network.');
-						break;
-					default:
-						console.log(`This is an unknown network of ID ${netId}.`);
-				}
 			});
 
 			// Get accounts.
@@ -95,6 +73,13 @@ export default class EditUser extends Component {
 			            this.setState({ userId });
 			        });
 
+					//Check for bronze status
+			        this.state.contract.isAtLeastBronze({
+			        	from: this.state.account
+			        }).then( isAtLeastBronze => {
+			            this.setState({ isAtLeastBronze });
+			        });
+
 					this.state.contract.getMyUser.call({
 						from: this.state.account
 					}).then( user => {
@@ -115,10 +100,13 @@ export default class EditUser extends Component {
 		if(this.state.nameIsPristine){
 			return null;
 		}
-		if(this.state.name === ''){
-			return 'error';
+		const re = /^.{1,70}$/g;
+
+		if(re.test(this.state.name)) {
+		    return 'success';
+		} else {
+		    return 'error';
 		}
-		return 'success'; 
 	}
 
 	validateSecondaryAddress(){
@@ -258,6 +246,14 @@ export default class EditUser extends Component {
 						>
 							<ControlLabel>{translate('FIELD_newName')}</ControlLabel>
 							<InputGroup>
+								<InputGroup.Button>
+									<button
+										className="btn btn-primary"
+										onClick={this.onNameChangeSave.bind(this)}
+										disabled={!this.state.isAtLeastBronze || this.state.buttonDisabled}>
+										{translate('CTA_save')}
+									</button>
+								</InputGroup.Button>
 								<FormControl
 									type="text"
 									value={this.state.name}
@@ -266,15 +262,15 @@ export default class EditUser extends Component {
 									onBlur={() => this.setState({nameIsPristine: false})}
 								/>
 								<FormControl.Feedback />
-								<InputGroup.Button>
-									<button
-										className="btn btn-primary"
-										onClick={this.onNameChangeSave.bind(this)}
-										disabled={this.state.buttonDisabled}>
-										{translate('CTA_save')}
-									</button>
-								</InputGroup.Button>
+								
 							</InputGroup>
+							{ !this.state.isAtLeastBronze &&
+								<div>
+									<Label bsStyle="danger">*Restrictions apply:</Label>
+								    <p>In order to change your name, you must achieve Bronze tier by owning a sufficient amount of EP.</p>
+								    <p>For more info, visit the <Link to="/help">help page</Link>.</p>
+							    </div>
+							}
 						</FormGroup>
 
 						<FormGroup
@@ -310,7 +306,6 @@ export default class EditUser extends Component {
 					<li className="list-group-item">
 					    <FormGroup
 							controlId="toggleDefaultEventApproval"
-							validationState={this.validateName()}
 						>
 							<ControlLabel>Current Default Event Approval</ControlLabel>
 							<InputGroup>

@@ -19,8 +19,8 @@ contract EternalCore is EternalEvents {
         createUser(
             "Kevin Lee Wei Yang",   //name
             729475200,              //dob
-            930567,                 //3.0567° N
-            2815851,                //101.5851° E
+            930786,                 //3.0786° N
+            2815936,                //101.5936° E
             true                    //defaultApproval
         );
 

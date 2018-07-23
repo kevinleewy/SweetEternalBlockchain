@@ -14,7 +14,7 @@ export default class Profile extends Component {
 			account: null,
 			contract: null,
 			error: null,
-			userId: this.props.match.params.id,
+			userId: parseInt(this.props.match.params.id, 10),
 			user: null,
 			translator: props.translator,
 			web3: null
@@ -26,29 +26,6 @@ export default class Profile extends Component {
 		getWeb3.then(results => {
 			this.setState({
 				web3: results.web3
-			});
-
-			//Detect network
-			results.web3.version.getNetwork((err, netId) => {
-		    	switch (netId) {
-					case "1":
-						console.log('This is mainnet');
-						break;
-					case "2":
-						console.log('This is the deprecated Morden test network.');
-						break;
-					case "3":
-						console.log('This is the ropsten test network.');
-						break;
-					case "4":
-						console.log('This is the Rinkeby test network.');
-						break;
-					case "42":
-						console.log('This is the Kovan test network.');
-						break;
-					default:
-						console.log(`This is an unknown network of ID ${netId}.`);
-				}
 			});
 
 			// Get accounts.
@@ -73,19 +50,18 @@ export default class Profile extends Component {
 	    eternalCore.setProvider(this.state.web3.currentProvider);
 
 
-	    eternalCore.deployed().then( instance => {
+	    eternalCore.deployed().then( async instance => {
 	        this.setState({contract : instance});
 
 	        //Load user
-	        instance.totalUsers().then(totalUsers => {
-	        	if(parseInt(this.state.userId, 10) >= totalUsers.toNumber()){
-	        		this.setState({error: "user ID exceeds total number of users"});
-	        	} else {
-			        instance.users(this.state.userId).then( user => {
-						this.setState({ user });
-					});
-				}
-			});
+	        const id = this.state.userId;
+	        const totalUsers = await instance.totalUsers();
+	        if(id <= 0 || id > totalUsers.toNumber()){
+        		this.setState({error: this.state.translator.translate('INFO_invalidUserId')});
+        	} else {
+        		const user = await instance.users(id);
+        		this.setState({ user });
+			}
 		});
 	}
 
@@ -102,7 +78,7 @@ export default class Profile extends Component {
 		if(this.state.contract == null){
 			return (
 				<div>
-					Loading Smart Contract...
+					{this.state.translator.translate('INFO_loadingSmartContract')}
 				</div>
 			); 
 		}
@@ -110,13 +86,13 @@ export default class Profile extends Component {
 		if(this.state.user == null) {
 			return (
 				<div>
-					User does not exist
+					{this.state.translator.translate('INFO_userDNE')}
 				</div>
 			); 
 		}
 
         return (
-        	<UserInfo id={this.state.userId} user={this.state.user} />
+        	<UserInfo user={this.state.user} translator={this.state.translator} />
 		);
 
 	}
@@ -125,7 +101,7 @@ export default class Profile extends Component {
 
 		return (
 			<div>
-				<h1>User Profile</h1>
+				<h1>{this.state.translator.translate('HEADER_userProfile')}</h1>
 				<hr />
 				{this.state.error ? this.renderError() : this.renderUser()}
 			</div>

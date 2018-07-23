@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import getWeb3 from '../../utils/getWeb3';
+import { ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import Geocode from "react-geocode";
@@ -20,6 +21,7 @@ export default class CreateUser extends Component {
 			account: null,
 			contract: null,
 			name: '',
+			nameIsPristine: true,
 			dob: moment(),
 			birthLocation: '',
 			mapCenterLatitude: 0.0,
@@ -36,29 +38,6 @@ export default class CreateUser extends Component {
 		getWeb3.then(results => {
 			this.setState({
 				web3: results.web3
-			});
-
-			//Detect network
-			results.web3.version.getNetwork((err, netId) => {
-		    	switch (netId) {
-					case "1":
-						console.log('This is mainnet');
-						break;
-					case "2":
-						console.log('This is the deprecated Morden test network.');
-						break;
-					case "3":
-						console.log('This is the ropsten test network.');
-						break;
-					case "4":
-						console.log('This is the Rinkeby test network.');
-						break;
-					case "42":
-						console.log('This is the Kovan test network.');
-						break;
-					default:
-						console.log(`This is an unknown network of ID ${netId}.`);
-				}
 			});
 
 			// Get accounts.
@@ -96,8 +75,24 @@ export default class CreateUser extends Component {
 		});
 	}
 
+	validateName(){
+		if(this.state.nameIsPristine){
+			return null;
+		}
+		const re = /^.{1,70}$/g;
+
+		if(re.test(this.state.name)) {
+		    return 'success';
+		} else {
+		    return 'error';
+		}
+	}
+
 	onNameChange(event) {
-		this.setState({ name: event.target.value });
+		this.setState({
+			name: event.target.value,
+			nameIsPristine: false
+		});
 	}
 
 	onDobChange(date) {
@@ -143,6 +138,7 @@ export default class CreateUser extends Component {
 	            	name: '',
 	            	dob: moment(),
 	            	birthLocation: '',
+	            	nameIsPristine: true,
 	            	formSubmitted: false
 	            });
 	        });
@@ -159,44 +155,52 @@ export default class CreateUser extends Component {
 	}
 
 	renderCreateUser() {
+
+		const translate = this.state.translator.translate;
+
 		return (
 			<div>
 				<h3>You're one step away creating permanent memories on the blockchain</h3>
-				<table className="table">
-					<thead>
-						<tr>
-							<th align="center">Name</th>
-							<th>Date of Birth</th>
-							<th>Birth Location</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>
-								<input
-									placeholder="Name"
-									value={this.state.name}
-									onChange={this.onNameChange.bind(this)} />
-							</td>
-							<td>
-								<DatePicker
-							        selected={this.state.dob}
-							        onChange={this.onDobChange.bind(this)} />
-					    	</td>
-					    	<td>
-						    	<input
-									size="40"
-									placeholder="Input birth location"
-									value={this.state.birthLocation}
-									onChange={this.onBirthLocationChange.bind(this)}
-									onBlur={this.onBirthLocationBlur.bind(this)} />
-								<GoogleMap 
-									lat={this.state.mapCenterLatitude}
-									lng={this.state.mapCenterLongitude} />
-					    	</td>
-				    	</tr>
-					</tbody>
-				</table>
+				<ul className="list-group">
+					<li className="list-group-item">
+						<FormGroup
+							controlId="formName"
+							validationState={this.validateName()}
+						>
+							<ControlLabel>{translate('FIELD_name')}</ControlLabel>
+							<FormControl
+								type="text"
+								value={this.state.name}
+								placeholder={translate('HELPER_newName')}
+								onChange={this.onNameChange.bind(this)}
+								onBlur={() => this.setState({nameIsPristine: false})}
+							/>
+							<FormControl.Feedback />
+						</FormGroup>
+					</li>
+					<li className="list-group-item">
+
+						<strong>{translate('FIELD_dob')}:</strong>
+						<DatePicker
+					        selected={this.state.dob}
+					        onChange={this.onDobChange.bind(this)} />
+
+			        </li>
+			        <li className="list-group-item">
+
+				        <strong>{translate('FIELD_pob')}:</strong>
+				        <br />
+				        <input
+							size="40"
+							placeholder="Input birth location"
+							value={this.state.birthLocation}
+							onChange={this.onBirthLocationChange.bind(this)}
+							onBlur={this.onBirthLocationBlur.bind(this)} />
+						<GoogleMap 
+							lat={this.state.mapCenterLatitude}
+							lng={this.state.mapCenterLongitude} />
+					</li>
+				</ul>
 
 				<button
 					className="btn btn-primary"

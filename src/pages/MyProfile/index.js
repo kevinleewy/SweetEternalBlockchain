@@ -30,29 +30,6 @@ export default class MyProfile extends Component {
 				web3: results.web3
 			});
 
-			//Detect network
-			results.web3.version.getNetwork((err, netId) => {
-		    	switch (netId) {
-					case "1":
-						console.log('This is mainnet');
-						break;
-					case "2":
-						console.log('This is the deprecated Morden test network.');
-						break;
-					case "3":
-						console.log('This is the ropsten test network.');
-						break;
-					case "4":
-						console.log('This is the Rinkeby test network.');
-						break;
-					case "42":
-						console.log('This is the Kovan test network.');
-						break;
-					default:
-						console.log(`This is an unknown network of ID ${netId}.`);
-				}
-			});
-
 			// Get accounts.
 			results.web3.eth.getAccounts((error, accounts) => {
 				this.setState({account:accounts[0]});
@@ -105,7 +82,7 @@ export default class MyProfile extends Component {
 		if(this.state.contract == null){
 			return (
 				<div>
-					Loading Smart Contract...
+					{this.state.translator.translate('INFO_loadingSmartContract')}
 				</div>
 			); 
 		}
@@ -132,7 +109,7 @@ export default class MyProfile extends Component {
 		if(this.state.contract == null){
 			return (
 				<div>
-					Loading Smart Contract...
+					{this.state.translator.translate('INFO_loadingSmartContract')}
 				</div>
 			); 
 		}
@@ -152,7 +129,7 @@ export default class MyProfile extends Component {
 			<div>
 				<h1>{this.state.translator.translate('HEADER_myProfile')}</h1>
 				<hr />
-				{this.renderUser()}
+				{ this.renderUser() }
 				<hr />
 				{ this.renderWallet() }
 			</div>

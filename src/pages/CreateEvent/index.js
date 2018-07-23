@@ -32,6 +32,8 @@ export default class CreateEvent extends Component {
 			formLocation: '',
 			formLatitude: 0.0,
 			formLongitude: 0.0,
+			formParticipant: '',
+			formParticipants: {},
 			formSubmitted: false,
 			mapCenterLatitude: 0.0,
 			mapCenterLongitude: 0.0,
@@ -48,29 +50,6 @@ export default class CreateEvent extends Component {
 		getWeb3.then(results => {
 			this.setState({
 				web3: results.web3
-			});
-
-			//Detect network
-			results.web3.version.getNetwork((err, netId) => {
-		    	switch (netId) {
-					case "1":
-						console.log('This is mainnet');
-						break;
-					case "2":
-						console.log('This is the deprecated Morden test network.');
-						break;
-					case "3":
-						console.log('This is the ropsten test network.');
-						break;
-					case "4":
-						console.log('This is the Rinkeby test network.');
-						break;
-					case "42":
-						console.log('This is the Kovan test network.');
-						break;
-					default:
-						console.log(`This is an unknown network of ID ${netId}.`);
-				}
 			});
 
 			// Get accounts.
@@ -181,6 +160,9 @@ export default class CreateEvent extends Component {
 		if(balance < 10000000){
 			return moment().subtract(3, 'years');
 		}
+		if(balance < 1000000000){
+			return moment().subtract(10, 'years');
+		}
 		return moment(0);
 
 	}
@@ -231,6 +213,30 @@ export default class CreateEvent extends Component {
 		}
 	}
 
+	onParticipantChange(event) {
+		this.setState({ formParticipant: event.target.value });
+	}
+
+	onParticipantBlur(event) {
+		if(this.state.formParticipant !== ''){
+			const newParticipant = parseInt(this.state.formParticipant, 10);
+			this.setState({ formParticipant: '' });	
+			if(newParticipant > 0 && !(newParticipant in this.state.formParticipants)){
+				this.state.contract.totalUsers().then(totalUsers => {
+					if(newParticipant <= totalUsers){
+						const newParticipants = Object.assign({}, this.state.formParticipants);
+						this.state.contract.users(newParticipant).then(user => {
+							newParticipants[newParticipant] = user[0];
+							this.setState({
+								formParticipants: newParticipants
+							});
+						});
+					}
+				});
+			}
+		}
+	}
+
 	onMapClick(event){
 		this.setState({
 			formLatitude: event.lat,
@@ -256,7 +262,7 @@ export default class CreateEvent extends Component {
 			actualLongitudeToContractLongitude(this.state.formLongitude),
 			this.state.formStartTime.unix(),
 			this.state.formEndTime.unix(),
-			[1],
+			Object.keys(this.state.formParticipants),
 	        {from: this.state.account}
 		).then(result => {
 			this.setState({formSubmitted: true});
@@ -276,6 +282,17 @@ export default class CreateEvent extends Component {
 	            });
 	        });
 		});
+	}
+
+	getHighlightedDates(){
+		const dates = [];
+		var now = this.state.formStartTime.clone();
+
+		while(now.isSameOrBefore(this.state.formEndTime)){
+			dates.push(now.clone());
+			now.add(1, 'days');
+		}
+		return dates;
 	}
 
 	renderContent(){
@@ -340,7 +357,7 @@ export default class CreateEvent extends Component {
 							<DropdownButton
 								componentClass={InputGroup.Button}
 								id="input-dropdown-addon"
-								title="Select"
+								title={ translate('CTA_select') }
 							>
 								{ eventTypeOptions }
 							</DropdownButton>
@@ -362,13 +379,15 @@ export default class CreateEvent extends Component {
 						<DatePicker
 					        selected={this.state.formStartTime}
 					        onChange={this.onStartTimeChange.bind(this)}
-					        minDate={minStartDate} />
+					        minDate={minStartDate}
+					        highlightDates={this.getHighlightedDates()} />
 					    <br />
 					    <strong>{translate('FIELD_endedOn')}:</strong>
 					    <DatePicker
 					        selected={this.state.formEndTime}
 					        onChange={this.onEndTimeChange.bind(this)}
-					        minDate={this.state.formStartTime} />
+					        minDate={this.state.formStartTime}
+					        highlightDates={this.getHighlightedDates()} />
 					    <br />
 					    <Label bsStyle="danger">*Restrictions apply:</Label>
 					    <p>Based on your tier, your start date can be as far back as {minStartDate.format("MM/DD/YYYY")}.</p>
@@ -384,7 +403,7 @@ export default class CreateEvent extends Component {
 							<FormControl
 								type="text"
 								value={this.state.formLocation}
-								placeholder="Enter event location"
+								placeholder={translate('HELPER_eventLocation')}
 								onChange={this.onLocationChange.bind(this)}
 								onBlur={this.onLocationBlur.bind(this)}
 							/>
@@ -406,6 +425,26 @@ export default class CreateEvent extends Component {
 							lat={this.state.mapCenterLatitude}
 							lng={this.state.mapCenterLongitude}
 							onClick={this.onMapClick.bind(this)}/>
+					</li>
+					<li className="list-group-item">
+						<FormGroup
+							controlId="formParticipants"
+							validationState={null}
+						>
+							<ControlLabel>{translate('FIELD_participants')}</ControlLabel>
+							<FormControl
+								type="text"
+								value={this.state.formParticipant}
+								placeholder={translate('HELPER_eventParticipant')}
+								onChange={this.onParticipantChange.bind(this)}
+								onBlur={this.onParticipantBlur.bind(this)}
+							/>
+							<ul className="list-group">
+								{Object.keys(this.state.formParticipants).map(
+									id => <li className="list-group-item" key={id}>{this.state.formParticipants[id]}</li>
+								)}
+							</ul>
+						</FormGroup>
 					</li>
 				</ul>
 				<button

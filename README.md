@@ -82,3 +82,20 @@ if a tab didn't automatically open in your web browser, manually open one and ke
 ```
 npm run build
 ```
+
+## Rinkeby Deployed Contract Information:
+
+Rinkeby Etherscan Link:
+```
+https://rinkeby.etherscan.io/tx/0x443fcef47b3a950cd6c8c0838484a620a8ddf441fd9cda548b4375d162bb261a
+```
+
+JSON
+```
+"4": {
+      "events": {},
+      "links": {},
+      "address": "0xdf34d35ced41cac4ea61a641983382d23685eb39",
+      "transactionHash": "0x443fcef47b3a950cd6c8c0838484a620a8ddf441fd9cda548b4375d162bb261a"
+    }
+```
